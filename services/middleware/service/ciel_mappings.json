@@ -1,0 +1,1481 @@
+{
+  "version": "1.0.0",
+  "description": "CIEL concept mappings for primary care voice form filling in OpenMRS-based clinics across Africa",
+  "last_updated": "2026-02-20",
+  "source": "Columbia International eHealth Laboratory (CIEL) dictionary",
+  "_note": "DERIVED ARTIFACT — authoritative source is dataset/CEIL_speech_dataset/ciel_dictionary/. This copy is optimized for runtime lookup. Do not edit directly; regenerate from source.",
+  "categories": {
+    "vitals": {
+      "description": "Vital signs and anthropometric measurements",
+      "concepts": [
+        {
+          "ciel_id": 5088,
+          "uuid": "c607c80f-1ea9-4da3-bb88-6276ce8868dd",
+          "name": "Temperature (C)",
+          "datatype": "numeric",
+          "units": "DEG C",
+          "synonyms": ["temperature", "temp", "fever reading", "body temperature", "febrile", "afebrile", "pyrexia", "thermometer reading", "core temp", "axillary temperature", "rectal temperature", "tympanic temperature"],
+          "range": {"low": 30.0, "high": 45.0, "critical_low": 35.0, "critical_high": 42.0}
+        },
+        {
+          "ciel_id": 5085,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c52",
+          "name": "Systolic Blood Pressure",
+          "datatype": "numeric",
+          "units": "mmHg",
+          "synonyms": ["systolic", "systolic BP", "systolic blood pressure", "systolic pressure", "BP systolic", "top number", "upper BP", "SBP"],
+          "range": {"low": 50, "high": 280, "critical_low": 70, "critical_high": 250}
+        },
+        {
+          "ciel_id": 5086,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c53",
+          "name": "Diastolic Blood Pressure",
+          "datatype": "numeric",
+          "units": "mmHg",
+          "synonyms": ["diastolic", "diastolic BP", "diastolic blood pressure", "diastolic pressure", "BP diastolic", "bottom number", "lower BP", "DBP"],
+          "range": {"low": 30, "high": 180, "critical_low": 40, "critical_high": 150}
+        },
+        {
+          "ciel_id": 5087,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c54",
+          "name": "Pulse",
+          "datatype": "numeric",
+          "units": "beats/min",
+          "synonyms": ["pulse", "heart rate", "pulse rate", "HR", "heartbeat", "beats per minute", "BPM", "radial pulse", "apical pulse", "cardiac rate"],
+          "range": {"low": 20, "high": 250, "critical_low": 40, "critical_high": 200}
+        },
+        {
+          "ciel_id": 5092,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c55",
+          "name": "Blood Oxygen Saturation",
+          "datatype": "numeric",
+          "units": "%",
+          "synonyms": ["SpO2", "oxygen saturation", "O2 sat", "sats", "pulse ox", "pulse oximetry", "oxygen level", "sat", "O2 level", "oximetry", "peripheral oxygen saturation"],
+          "range": {"low": 50, "high": 100, "critical_low": 85, "critical_high": null}
+        },
+        {
+          "ciel_id": 5089,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c56",
+          "name": "Weight (kg)",
+          "datatype": "numeric",
+          "units": "kg",
+          "synonyms": ["weight", "body weight", "current weight", "weighs", "mass", "weight in kilos", "weight in kilograms", "kg"],
+          "range": {"low": 0.1, "high": 300, "critical_low": null, "critical_high": null}
+        },
+        {
+          "ciel_id": 5090,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c57",
+          "name": "Height (cm)",
+          "datatype": "numeric",
+          "units": "cm",
+          "synonyms": ["height", "body height", "stature", "length", "height in centimeters", "how tall", "standing height", "recumbent length"],
+          "range": {"low": 20, "high": 250, "critical_low": null, "critical_high": null}
+        },
+        {
+          "ciel_id": 1342,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c58",
+          "name": "Body Mass Index",
+          "datatype": "numeric",
+          "units": "kg/m2",
+          "synonyms": ["BMI", "body mass index", "BMI calculated", "mass index"],
+          "range": {"low": 10, "high": 60, "critical_low": 14, "critical_high": 45}
+        },
+        {
+          "ciel_id": 5242,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c59",
+          "name": "Respiratory Rate",
+          "datatype": "numeric",
+          "units": "breaths/min",
+          "synonyms": ["respiratory rate", "RR", "breathing rate", "breaths per minute", "respiration rate", "resp rate", "respirations"],
+          "range": {"low": 4, "high": 70, "critical_low": 8, "critical_high": 60}
+        },
+        {
+          "ciel_id": 1343,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c60",
+          "name": "Mid-Upper Arm Circumference",
+          "datatype": "numeric",
+          "units": "cm",
+          "synonyms": ["MUAC", "mid-upper arm circumference", "arm circumference", "mid arm circumference", "upper arm circumference", "nutritional status measurement", "MUAC tape"],
+          "range": {"low": 5, "high": 40, "critical_low": 11.5, "critical_high": null}
+        },
+        {
+          "ciel_id": 5314,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c61",
+          "name": "Head Circumference",
+          "datatype": "numeric",
+          "units": "cm",
+          "synonyms": ["head circumference", "HC", "OFC", "occipitofrontal circumference", "head measurement", "cranial circumference"],
+          "range": {"low": 20, "high": 65, "critical_low": null, "critical_high": null}
+        },
+        {
+          "ciel_id": 887,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c62",
+          "name": "Blood Glucose",
+          "datatype": "numeric",
+          "units": "mg/dL",
+          "synonyms": ["blood glucose", "blood sugar", "glucose level", "sugar level", "RBS", "random blood sugar", "fasting blood sugar", "FBS", "glucometer reading", "BGL", "BSL", "capillary glucose"],
+          "range": {"low": 20, "high": 600, "critical_low": 40, "critical_high": 500}
+        },
+        {
+          "ciel_id": 111,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c63",
+          "name": "Blood Glucose (mmol/L)",
+          "datatype": "numeric",
+          "units": "mmol/L",
+          "synonyms": ["blood glucose mmol", "sugar mmol", "glucose mmol"],
+          "range": {"low": 1.0, "high": 33.0, "critical_low": 2.2, "critical_high": 27.8}
+        },
+        {
+          "ciel_id": 166725,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c64",
+          "name": "Pain Severity (0-10)",
+          "datatype": "numeric",
+          "units": "scale 0-10",
+          "synonyms": ["pain scale", "pain score", "pain severity", "pain level", "pain rating", "visual analog scale", "VAS pain", "numeric pain rating", "NRS", "pain out of ten", "pain out of 10"],
+          "range": {"low": 0, "high": 10, "critical_low": null, "critical_high": null}
+        },
+        {
+          "ciel_id": 5091,
+          "uuid": "c36e9c8b-6049-4f31-ad36-a7e4b0831c65",
+          "name": "Weight for Height Status",
+          "datatype": "coded",
+          "units": null,
+          "synonyms": ["weight for height", "WFH", "nutritional Z-score", "weight for height z-score", "WHZ"],
+          "range": null
+        }
+      ]
+    },
+    "diagnoses": {
+      "description": "Common diagnoses in African primary care settings",
+      "concepts": [
+        {
+          "ciel_id": 116128,
+          "uuid": "3ccc4764-26fe-102b-80cb-0017a47871b2",
+          "name": "Malaria",
+          "datatype": "coded",
+          "icd10": "B54",
+          "synonyms": ["malaria", "malarial infection", "plasmodium", "P. falciparum", "falciparum malaria", "uncomplicated malaria", "complicated malaria", "severe malaria", "cerebral malaria", "malaria parasite"]
+        },
+        {
+          "ciel_id": 114100,
+          "uuid": "3ccca7d8-26fe-102b-80cb-0017a47871b2",
+          "name": "Pneumonia",
+          "datatype": "coded",
+          "icd10": "J18.9",
+          "synonyms": ["pneumonia", "chest infection", "lung infection", "lower respiratory tract infection", "LRTI", "bronchopneumonia", "lobar pneumonia", "community acquired pneumonia", "CAP"]
+        },
+        {
+          "ciel_id": 138405,
+          "uuid": "3cce934a-26fe-102b-80cb-0017a47871b2",
+          "name": "HIV Disease",
+          "datatype": "coded",
+          "icd10": "B24",
+          "synonyms": ["HIV", "HIV positive", "HIV disease", "human immunodeficiency virus", "HIV/AIDS", "AIDS", "acquired immunodeficiency syndrome", "retroviral disease", "RVD", "HIV infection", "seropositive"]
+        },
+        {
+          "ciel_id": 112141,
+          "uuid": "3ccbaf04-26fe-102b-80cb-0017a47871b2",
+          "name": "Tuberculosis",
+          "datatype": "coded",
+          "icd10": "A16.9",
+          "synonyms": ["tuberculosis", "TB", "pulmonary TB", "PTB", "extrapulmonary TB", "EPTB", "tubercle", "mycobacterium tuberculosis", "consumption", "Koch disease", "smear positive TB", "smear negative TB", "MDR-TB", "drug resistant TB"]
+        },
+        {
+          "ciel_id": 119481,
+          "uuid": "3cce0c38-26fe-102b-80cb-0017a47871b2",
+          "name": "Diabetes Mellitus",
+          "datatype": "coded",
+          "icd10": "E14",
+          "synonyms": ["diabetes", "diabetes mellitus", "DM", "sugar disease", "type 2 diabetes", "type 1 diabetes", "T2DM", "T1DM", "diabetic", "high blood sugar", "hyperglycemia"]
+        },
+        {
+          "ciel_id": 117399,
+          "uuid": "3cd50930-26fe-102b-80cb-0017a47871b2",
+          "name": "Hypertension",
+          "datatype": "coded",
+          "icd10": "I10",
+          "synonyms": ["hypertension", "HTN", "high blood pressure", "elevated BP", "essential hypertension", "primary hypertension", "high BP", "hypertensive", "pressure"]
+        },
+        {
+          "ciel_id": 141,
+          "uuid": "3ccc0048-26fe-102b-80cb-0017a47871b2",
+          "name": "Typhoid Fever",
+          "datatype": "coded",
+          "icd10": "A01.0",
+          "synonyms": ["typhoid", "typhoid fever", "enteric fever", "salmonella typhi", "S. typhi infection", "paratyphoid"]
+        },
+        {
+          "ciel_id": 142412,
+          "uuid": "3cd49846-26fe-102b-80cb-0017a47871b2",
+          "name": "Diarrheal Disease",
+          "datatype": "coded",
+          "icd10": "A09",
+          "synonyms": ["diarrhea", "diarrhoea", "diarrheal disease", "acute diarrhea", "watery diarrhea", "bloody diarrhea", "gastroenteritis", "AGE", "acute gastroenteritis", "loose stools", "running stomach", "dysentery"]
+        },
+        {
+          "ciel_id": 121629,
+          "uuid": "3cd20c9e-26fe-102b-80cb-0017a47871b2",
+          "name": "Anemia",
+          "datatype": "coded",
+          "icd10": "D64.9",
+          "synonyms": ["anemia", "anaemia", "low hemoglobin", "low blood", "iron deficiency anemia", "sickle cell anemia", "severe anemia", "moderate anemia", "mild anemia", "blood deficiency"]
+        },
+        {
+          "ciel_id": 115122,
+          "uuid": "3cccc388-26fe-102b-80cb-0017a47871b2",
+          "name": "Malnutrition",
+          "datatype": "coded",
+          "icd10": "E46",
+          "synonyms": ["malnutrition", "malnourished", "undernutrition", "protein energy malnutrition", "PEM", "kwashiorkor", "marasmus", "wasting", "stunting", "severe acute malnutrition", "SAM", "moderate acute malnutrition", "MAM", "failure to thrive"]
+        },
+        {
+          "ciel_id": 119824,
+          "uuid": "3cce1d22-26fe-102b-80cb-0017a47871b2",
+          "name": "Upper Respiratory Tract Infection",
+          "datatype": "coded",
+          "icd10": "J06.9",
+          "synonyms": ["URTI", "upper respiratory infection", "upper respiratory tract infection", "common cold", "rhinitis", "pharyngitis", "nasopharyngitis", "cold", "flu-like illness", "coryza", "tonsillitis", "sore throat infection"]
+        },
+        {
+          "ciel_id": 111633,
+          "uuid": "3ccb6b48-26fe-102b-80cb-0017a47871b2",
+          "name": "Urinary Tract Infection",
+          "datatype": "coded",
+          "icd10": "N39.0",
+          "synonyms": ["UTI", "urinary tract infection", "urinary infection", "bladder infection", "cystitis", "pyelonephritis", "urine infection", "dysuria with infection"]
+        },
+        {
+          "ciel_id": 112992,
+          "uuid": "3ccba0f4-26fe-102b-80cb-0017a47871b2",
+          "name": "Gonorrhea",
+          "datatype": "coded",
+          "icd10": "A54.9",
+          "synonyms": ["gonorrhea", "gonorrhoea", "gonococcal infection", "GC", "neisseria gonorrhoeae", "the clap", "urethral discharge"]
+        },
+        {
+          "ciel_id": 112493,
+          "uuid": "3ccb8c04-26fe-102b-80cb-0017a47871b2",
+          "name": "Syphilis",
+          "datatype": "coded",
+          "icd10": "A53.9",
+          "synonyms": ["syphilis", "treponema pallidum", "primary syphilis", "secondary syphilis", "tertiary syphilis", "latent syphilis", "VDRL positive", "RPR positive", "lues"]
+        },
+        {
+          "ciel_id": 117543,
+          "uuid": "3cd52a28-26fe-102b-80cb-0017a47871b2",
+          "name": "Skin Infection",
+          "datatype": "coded",
+          "icd10": "L08.9",
+          "synonyms": ["skin infection", "cellulitis", "abscess", "skin abscess", "boil", "furuncle", "impetigo", "wound infection", "infected wound", "pyoderma", "skin sepsis"]
+        },
+        {
+          "ciel_id": 129211,
+          "uuid": "3cd3ad12-26fe-102b-80cb-0017a47871b2",
+          "name": "Fungal Skin Infection",
+          "datatype": "coded",
+          "icd10": "B36.9",
+          "synonyms": ["fungal infection", "ringworm", "tinea", "dermatophytosis", "candidiasis skin", "tinea corporis", "tinea capitis", "athlete foot", "fungal skin"]
+        },
+        {
+          "ciel_id": 1434,
+          "uuid": "3cd51d30-26fe-102b-80cb-0017a47871b2",
+          "name": "Pregnancy",
+          "datatype": "coded",
+          "icd10": "Z33",
+          "synonyms": ["pregnancy", "pregnant", "gravid", "gestation", "antenatal", "prenatal", "ANC", "expecting", "with child", "gravida"]
+        },
+        {
+          "ciel_id": 113006,
+          "uuid": "3ccba1b2-26fe-102b-80cb-0017a47871b2",
+          "name": "Pre-eclampsia",
+          "datatype": "coded",
+          "icd10": "O14.9",
+          "synonyms": ["pre-eclampsia", "preeclampsia", "PET", "toxemia of pregnancy", "pregnancy induced hypertension", "PIH", "gestational hypertension with proteinuria", "eclampsia"]
+        },
+        {
+          "ciel_id": 121375,
+          "uuid": "3cd1f57a-26fe-102b-80cb-0017a47871b2",
+          "name": "Asthma",
+          "datatype": "coded",
+          "icd10": "J45.9",
+          "synonyms": ["asthma", "bronchial asthma", "asthmatic", "reactive airway disease", "RAD", "wheezy bronchitis", "asthma attack", "acute asthma exacerbation", "chronic asthma"]
+        },
+        {
+          "ciel_id": 119508,
+          "uuid": "3cce0e68-26fe-102b-80cb-0017a47871b2",
+          "name": "Chronic Obstructive Pulmonary Disease",
+          "datatype": "coded",
+          "icd10": "J44.9",
+          "synonyms": ["COPD", "chronic obstructive pulmonary disease", "chronic obstructive airway disease", "COAD", "chronic bronchitis", "emphysema", "obstructive lung disease"]
+        },
+        {
+          "ciel_id": 119558,
+          "uuid": "3cce1118-26fe-102b-80cb-0017a47871b2",
+          "name": "Peptic Ulcer Disease",
+          "datatype": "coded",
+          "icd10": "K27.9",
+          "synonyms": ["peptic ulcer", "PUD", "peptic ulcer disease", "gastric ulcer", "duodenal ulcer", "stomach ulcer", "ulcer disease", "H. pylori ulcer"]
+        },
+        {
+          "ciel_id": 115835,
+          "uuid": "3cccd7e2-26fe-102b-80cb-0017a47871b2",
+          "name": "Meningitis",
+          "datatype": "coded",
+          "icd10": "G03.9",
+          "synonyms": ["meningitis", "bacterial meningitis", "viral meningitis", "cerebral meningitis", "meningococcal meningitis", "CSF meningitis", "meningeal infection"]
+        },
+        {
+          "ciel_id": 134561,
+          "uuid": "3cce5a10-26fe-102b-80cb-0017a47871b2",
+          "name": "Measles",
+          "datatype": "coded",
+          "icd10": "B05.9",
+          "synonyms": ["measles", "rubeola", "morbilli", "measles infection", "measles rash", "post-measles complications"]
+        },
+        {
+          "ciel_id": 145622,
+          "uuid": "3cd4c3f2-26fe-102b-80cb-0017a47871b2",
+          "name": "Cholera",
+          "datatype": "coded",
+          "icd10": "A00.9",
+          "synonyms": ["cholera", "vibrio cholerae", "cholera infection", "rice water stools", "acute watery diarrhea", "severe dehydrating diarrhea"]
+        },
+        {
+          "ciel_id": 117152,
+          "uuid": "3cd4f966-26fe-102b-80cb-0017a47871b2",
+          "name": "Schistosomiasis",
+          "datatype": "coded",
+          "icd10": "B65.9",
+          "synonyms": ["schistosomiasis", "bilharzia", "bilharziasis", "snail fever", "schistosoma", "S. mansoni", "S. haematobium", "urinary bilharzia", "intestinal bilharzia"]
+        },
+        {
+          "ciel_id": 116699,
+          "uuid": "3ccd5210-26fe-102b-80cb-0017a47871b2",
+          "name": "Hookworm Disease",
+          "datatype": "coded",
+          "icd10": "B76.9",
+          "synonyms": ["hookworm", "hookworm disease", "hookworm infection", "ancylostomiasis", "necatoriasis", "ancylostoma", "necator americanus", "intestinal worms"]
+        },
+        {
+          "ciel_id": 116030,
+          "uuid": "3cccd050-26fe-102b-80cb-0017a47871b2",
+          "name": "Ascariasis",
+          "datatype": "coded",
+          "icd10": "B77.9",
+          "synonyms": ["ascariasis", "ascaris", "roundworm", "ascaris lumbricoides", "roundworm infection", "intestinal ascariasis"]
+        },
+        {
+          "ciel_id": 116543,
+          "uuid": "3ccd4360-26fe-102b-80cb-0017a47871b2",
+          "name": "Conjunctivitis",
+          "datatype": "coded",
+          "icd10": "H10.9",
+          "synonyms": ["conjunctivitis", "pink eye", "red eye", "eye infection", "bacterial conjunctivitis", "viral conjunctivitis", "allergic conjunctivitis", "eye discharge"]
+        },
+        {
+          "ciel_id": 120749,
+          "uuid": "3cd1a8ae-26fe-102b-80cb-0017a47871b2",
+          "name": "Otitis Media",
+          "datatype": "coded",
+          "icd10": "H66.9",
+          "synonyms": ["otitis media", "ear infection", "middle ear infection", "AOM", "acute otitis media", "chronic otitis media", "ear pain with discharge", "suppurative otitis media"]
+        },
+        {
+          "ciel_id": 148888,
+          "uuid": "3cd4d7c0-26fe-102b-80cb-0017a47871b2",
+          "name": "Oral Candidiasis",
+          "datatype": "coded",
+          "icd10": "B37.0",
+          "synonyms": ["oral candidiasis", "oral thrush", "thrush", "mouth thrush", "candida mouth", "oropharyngeal candidiasis", "white patches mouth"]
+        },
+        {
+          "ciel_id": 116350,
+          "uuid": "3ccd2f24-26fe-102b-80cb-0017a47871b2",
+          "name": "Heart Failure",
+          "datatype": "coded",
+          "icd10": "I50.9",
+          "synonyms": ["heart failure", "CHF", "congestive heart failure", "cardiac failure", "CCF", "congestive cardiac failure", "left heart failure", "right heart failure", "biventricular failure"]
+        },
+        {
+          "ciel_id": 118631,
+          "uuid": "3ccdc3c6-26fe-102b-80cb-0017a47871b2",
+          "name": "Epilepsy",
+          "datatype": "coded",
+          "icd10": "G40.9",
+          "synonyms": ["epilepsy", "seizure disorder", "convulsions", "fits", "seizures", "epileptic", "grand mal", "tonic clonic seizures", "absence seizures", "recurrent seizures"]
+        },
+        {
+          "ciel_id": 117703,
+          "uuid": "3cd53d60-26fe-102b-80cb-0017a47871b2",
+          "name": "Depression",
+          "datatype": "coded",
+          "icd10": "F32.9",
+          "synonyms": ["depression", "depressive disorder", "major depression", "MDD", "depressive episode", "clinical depression", "low mood", "depressed", "sadness"]
+        },
+        {
+          "ciel_id": 116288,
+          "uuid": "3ccd2822-26fe-102b-80cb-0017a47871b2",
+          "name": "Gastritis",
+          "datatype": "coded",
+          "icd10": "K29.7",
+          "synonyms": ["gastritis", "stomach inflammation", "acute gastritis", "chronic gastritis", "dyspepsia", "gastric pain", "epigastric pain", "heartburn"]
+        },
+        {
+          "ciel_id": 112609,
+          "uuid": "3ccb9350-26fe-102b-80cb-0017a47871b2",
+          "name": "Herpes Zoster",
+          "datatype": "coded",
+          "icd10": "B02.9",
+          "synonyms": ["herpes zoster", "shingles", "zoster", "varicella zoster reactivation", "zona", "shingles rash"]
+        },
+        {
+          "ciel_id": 140039,
+          "uuid": "3cce86e8-26fe-102b-80cb-0017a47871b2",
+          "name": "Kaposi Sarcoma",
+          "datatype": "coded",
+          "icd10": "C46.9",
+          "synonyms": ["Kaposi sarcoma", "KS", "Kaposi", "kaposi lesions", "AIDS-related Kaposi sarcoma"]
+        },
+        {
+          "ciel_id": 148432,
+          "uuid": "3cd4d540-26fe-102b-80cb-0017a47871b2",
+          "name": "Pneumocystis Pneumonia",
+          "datatype": "coded",
+          "icd10": "B59",
+          "synonyms": ["PCP", "pneumocystis pneumonia", "pneumocystis jirovecii", "PJP", "pneumocystis carinii pneumonia", "opportunistic pneumonia"]
+        },
+        {
+          "ciel_id": 117889,
+          "uuid": "3cd55020-26fe-102b-80cb-0017a47871b2",
+          "name": "Rheumatic Heart Disease",
+          "datatype": "coded",
+          "icd10": "I09.9",
+          "synonyms": ["rheumatic heart disease", "RHD", "rheumatic fever sequelae", "valvular heart disease", "post-rheumatic valvular disease", "mitral stenosis rheumatic"]
+        },
+        {
+          "ciel_id": 113488,
+          "uuid": "3ccbc062-26fe-102b-80cb-0017a47871b2",
+          "name": "Cervical Cancer",
+          "datatype": "coded",
+          "icd10": "C53.9",
+          "synonyms": ["cervical cancer", "cancer of the cervix", "cervical carcinoma", "CaCx", "cervical malignancy", "cervical neoplasm"]
+        },
+        {
+          "ciel_id": 117321,
+          "uuid": "3cd4ff56-26fe-102b-80cb-0017a47871b2",
+          "name": "Sickle Cell Disease",
+          "datatype": "coded",
+          "icd10": "D57.1",
+          "synonyms": ["sickle cell disease", "SCD", "sickle cell anemia", "sickle cell crisis", "vaso-occlusive crisis", "hemoglobin SS", "HbSS", "sickle cell"]
+        }
+      ]
+    },
+    "medications": {
+      "description": "Common medications in African primary care formulary",
+      "concepts": [
+        {
+          "ciel_id": 71160,
+          "uuid": "3cd25274-26fe-102b-80cb-0017a47871b2",
+          "name": "Amoxicillin",
+          "datatype": "coded",
+          "drug_class": "Antibiotic",
+          "synonyms": ["amoxicillin", "amoxil", "amox", "amoxycillin", "amoxi", "amoxicillin capsules", "amoxicillin syrup", "amoxicillin suspension"],
+          "common_doses": ["250mg", "500mg", "125mg/5mL"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 79652,
+          "uuid": "3cd2a7c4-26fe-102b-80cb-0017a47871b2",
+          "name": "Metformin",
+          "datatype": "coded",
+          "drug_class": "Antidiabetic",
+          "synonyms": ["metformin", "glucophage", "metformin hydrochloride", "metformin HCl"],
+          "common_doses": ["500mg", "850mg", "1000mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 71561,
+          "uuid": "3cd25544-26fe-102b-80cb-0017a47871b2",
+          "name": "Artemether-Lumefantrine",
+          "datatype": "coded",
+          "drug_class": "Antimalarial",
+          "synonyms": ["ACT", "artemether-lumefantrine", "artemether lumefantrine", "coartem", "AL", "artemisinin combination therapy", "anti-malaria tablets", "malaria tablets"],
+          "common_doses": ["20/120mg", "40/240mg", "80/480mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 70116,
+          "uuid": "3cd23e42-26fe-102b-80cb-0017a47871b2",
+          "name": "Paracetamol",
+          "datatype": "coded",
+          "drug_class": "Analgesic/Antipyretic",
+          "synonyms": ["paracetamol", "acetaminophen", "tylenol", "panadol", "PCM", "paracetamol tablets", "paracetamol syrup", "para"],
+          "common_doses": ["500mg", "1g", "120mg/5mL", "250mg/5mL"],
+          "routes": ["oral", "rectal"]
+        },
+        {
+          "ciel_id": 71617,
+          "uuid": "3cd256de-26fe-102b-80cb-0017a47871b2",
+          "name": "Ibuprofen",
+          "datatype": "coded",
+          "drug_class": "NSAID",
+          "synonyms": ["ibuprofen", "brufen", "advil", "nurofen", "ibuprofen tablets", "ibu"],
+          "common_doses": ["200mg", "400mg", "600mg", "100mg/5mL"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 105281,
+          "uuid": "3cd316d8-26fe-102b-80cb-0017a47871b2",
+          "name": "Cotrimoxazole",
+          "datatype": "coded",
+          "drug_class": "Antibiotic",
+          "synonyms": ["cotrimoxazole", "septrin", "bactrim", "trimethoprim-sulfamethoxazole", "TMP-SMX", "co-trimoxazole", "CTX", "cotrimoxazole prophylaxis", "septrin DS"],
+          "common_doses": ["480mg", "960mg", "240mg/5mL"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 73041,
+          "uuid": "3cd26a20-26fe-102b-80cb-0017a47871b2",
+          "name": "Ciprofloxacin",
+          "datatype": "coded",
+          "drug_class": "Antibiotic",
+          "synonyms": ["ciprofloxacin", "cipro", "ciproxin", "ciprobay", "ciprofloxacin tablets"],
+          "common_doses": ["250mg", "500mg", "750mg"],
+          "routes": ["oral", "IV"]
+        },
+        {
+          "ciel_id": 72822,
+          "uuid": "3cd2683e-26fe-102b-80cb-0017a47871b2",
+          "name": "Doxycycline",
+          "datatype": "coded",
+          "drug_class": "Antibiotic",
+          "synonyms": ["doxycycline", "doxy", "vibramycin", "doxycycline capsules", "doxycycline hyclate"],
+          "common_doses": ["100mg", "200mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 79782,
+          "uuid": "3cd2a904-26fe-102b-80cb-0017a47871b2",
+          "name": "Metronidazole",
+          "datatype": "coded",
+          "drug_class": "Antibiotic/Antiprotozoal",
+          "synonyms": ["metronidazole", "flagyl", "metro", "metrogyl", "metronidazole tablets", "metronidazole IV", "metronidazole suspension"],
+          "common_doses": ["200mg", "400mg", "500mg", "200mg/5mL"],
+          "routes": ["oral", "IV", "rectal"]
+        },
+        {
+          "ciel_id": 351,
+          "uuid": "3cd09740-26fe-102b-80cb-0017a47871b2",
+          "name": "Oral Rehydration Salts",
+          "datatype": "coded",
+          "drug_class": "Rehydration",
+          "synonyms": ["ORS", "oral rehydration salts", "oral rehydration solution", "oral rehydration therapy", "ORT", "rehydration salts", "electrolyte solution"],
+          "common_doses": ["1 sachet per liter"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 86672,
+          "uuid": "3cd2d6e0-26fe-102b-80cb-0017a47871b2",
+          "name": "Zinc Sulfate",
+          "datatype": "coded",
+          "drug_class": "Mineral supplement",
+          "synonyms": ["zinc", "zinc sulfate", "zinc tablets", "zinc supplementation", "zinc for diarrhea", "zinc sulphate", "zinc syrup"],
+          "common_doses": ["10mg", "20mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 76095,
+          "uuid": "3cd28a24-26fe-102b-80cb-0017a47871b2",
+          "name": "Ferrous Sulfate + Folic Acid",
+          "datatype": "coded",
+          "drug_class": "Hematologic supplement",
+          "synonyms": ["iron", "ferrous sulfate", "ferrous sulphate", "iron tablets", "iron and folic acid", "fefol", "iron supplement", "folic acid", "folate", "iron folate", "hematinic"],
+          "common_doses": ["200mg + 0.25mg", "200mg + 5mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 164505,
+          "uuid": "d1fd0e18-e0a9-4a4c-86f4-fd5af72ebc04",
+          "name": "Tenofovir/Lamivudine/Dolutegravir",
+          "datatype": "coded",
+          "drug_class": "Antiretroviral",
+          "synonyms": ["TLD", "TDF/3TC/DTG", "tenofovir lamivudine dolutegravir", "first-line ART", "first line ARVs", "TLD regimen", "dolutegravir-based regimen"],
+          "common_doses": ["300/300/50mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 160124,
+          "uuid": "3cdbed2c-26fe-102b-80cb-0017a47871b2",
+          "name": "Tenofovir/Lamivudine",
+          "datatype": "coded",
+          "drug_class": "Antiretroviral",
+          "synonyms": ["TDF/3TC", "tenofovir lamivudine", "tenofovir plus lamivudine", "backbone ARVs"],
+          "common_doses": ["300/300mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 164507,
+          "uuid": "d1fd0e18-e0a9-4a4c-86f4-fd5af72ebc05",
+          "name": "Dolutegravir",
+          "datatype": "coded",
+          "drug_class": "Antiretroviral",
+          "synonyms": ["dolutegravir", "DTG", "tivicay", "integrase inhibitor"],
+          "common_doses": ["50mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 159809,
+          "uuid": "3cdb9c32-26fe-102b-80cb-0017a47871b2",
+          "name": "Zidovudine/Lamivudine/Nevirapine",
+          "datatype": "coded",
+          "drug_class": "Antiretroviral",
+          "synonyms": ["AZT/3TC/NVP", "zidovudine lamivudine nevirapine", "triomune", "fixed dose combination ARV"],
+          "common_doses": ["300/150/200mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 1131,
+          "uuid": "3cd10b92-26fe-102b-80cb-0017a47871b2",
+          "name": "Rifampicin/Isoniazid/Pyrazinamide/Ethambutol",
+          "datatype": "coded",
+          "drug_class": "Anti-tuberculosis",
+          "synonyms": ["RHZE", "anti-TB drugs", "TB treatment", "intensive phase TB", "fixed dose combination TB", "rifampicin isoniazid pyrazinamide ethambutol", "4FDC", "TB drugs"],
+          "common_doses": ["150/75/400/275mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 656,
+          "uuid": "3cd0e914-26fe-102b-80cb-0017a47871b2",
+          "name": "Isoniazid",
+          "datatype": "coded",
+          "drug_class": "Anti-tuberculosis",
+          "synonyms": ["isoniazid", "INH", "H", "isoniazid prophylaxis", "IPT", "isoniazid preventive therapy", "TB prophylaxis"],
+          "common_doses": ["100mg", "300mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 71652,
+          "uuid": "3cd25844-26fe-102b-80cb-0017a47871b2",
+          "name": "Amlodipine",
+          "datatype": "coded",
+          "drug_class": "Antihypertensive",
+          "synonyms": ["amlodipine", "norvasc", "amlodipine besylate", "amlo", "calcium channel blocker"],
+          "common_doses": ["5mg", "10mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 72644,
+          "uuid": "3cd26474-26fe-102b-80cb-0017a47871b2",
+          "name": "Enalapril",
+          "datatype": "coded",
+          "drug_class": "Antihypertensive",
+          "synonyms": ["enalapril", "enalapril maleate", "vasotec", "renitec", "ACE inhibitor", "ACEI"],
+          "common_doses": ["2.5mg", "5mg", "10mg", "20mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 71338,
+          "uuid": "3cd253a0-26fe-102b-80cb-0017a47871b2",
+          "name": "Hydrochlorothiazide",
+          "datatype": "coded",
+          "drug_class": "Diuretic/Antihypertensive",
+          "synonyms": ["hydrochlorothiazide", "HCTZ", "HCT", "thiazide", "water pill", "diuretic", "hydrochlorthiazide"],
+          "common_doses": ["12.5mg", "25mg", "50mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 83600,
+          "uuid": "3cd2c390-26fe-102b-80cb-0017a47871b2",
+          "name": "Salbutamol",
+          "datatype": "coded",
+          "drug_class": "Bronchodilator",
+          "synonyms": ["salbutamol", "albuterol", "ventolin", "salbutamol inhaler", "salbutamol nebulizer", "reliever inhaler", "rescue inhaler", "blue inhaler", "bronchodilator"],
+          "common_doses": ["100mcg/puff", "2.5mg/2.5mL nebule", "2mg", "4mg"],
+          "routes": ["inhaled", "oral", "nebulized"]
+        },
+        {
+          "ciel_id": 82912,
+          "uuid": "3cd2bc56-26fe-102b-80cb-0017a47871b2",
+          "name": "Prednisolone",
+          "datatype": "coded",
+          "drug_class": "Corticosteroid",
+          "synonyms": ["prednisolone", "prednisone", "steroid", "pred", "prednisolone tablets", "oral steroid", "corticosteroid"],
+          "common_doses": ["5mg", "20mg", "40mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 80106,
+          "uuid": "3cd2ab62-26fe-102b-80cb-0017a47871b2",
+          "name": "Omeprazole",
+          "datatype": "coded",
+          "drug_class": "Proton pump inhibitor",
+          "synonyms": ["omeprazole", "losec", "prilosec", "PPI", "proton pump inhibitor", "omeprazole capsules"],
+          "common_doses": ["20mg", "40mg"],
+          "routes": ["oral", "IV"]
+        },
+        {
+          "ciel_id": 70439,
+          "uuid": "3cd24170-26fe-102b-80cb-0017a47871b2",
+          "name": "Albendazole",
+          "datatype": "coded",
+          "drug_class": "Anthelmintic",
+          "synonyms": ["albendazole", "zentel", "deworming tablet", "dewormer", "albendazole tablet", "worm medicine", "anthelmintic"],
+          "common_doses": ["200mg", "400mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 79079,
+          "uuid": "3cd2a38c-26fe-102b-80cb-0017a47871b2",
+          "name": "Mebendazole",
+          "datatype": "coded",
+          "drug_class": "Anthelmintic",
+          "synonyms": ["mebendazole", "vermox", "mebendazole tablets", "deworming", "worm tablet"],
+          "common_doses": ["100mg", "500mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 75948,
+          "uuid": "3cd288da-26fe-102b-80cb-0017a47871b2",
+          "name": "Gentamicin",
+          "datatype": "coded",
+          "drug_class": "Antibiotic",
+          "synonyms": ["gentamicin", "genta", "gentamycin", "aminoglycoside", "gentamicin injection"],
+          "common_doses": ["40mg/mL", "80mg/2mL"],
+          "routes": ["IV", "IM"]
+        },
+        {
+          "ciel_id": 73001,
+          "uuid": "3cd269a8-26fe-102b-80cb-0017a47871b2",
+          "name": "Ceftriaxone",
+          "datatype": "coded",
+          "drug_class": "Antibiotic",
+          "synonyms": ["ceftriaxone", "rocephin", "ceftriaxone injection", "cef", "third generation cephalosporin", "ceftriaxone IV", "ceftriaxone IM"],
+          "common_doses": ["250mg", "500mg", "1g", "2g"],
+          "routes": ["IV", "IM"]
+        },
+        {
+          "ciel_id": 72249,
+          "uuid": "3cd25fd6-26fe-102b-80cb-0017a47871b2",
+          "name": "Diclofenac",
+          "datatype": "coded",
+          "drug_class": "NSAID",
+          "synonyms": ["diclofenac", "voltaren", "diclo", "diclofenac sodium", "diclofenac injection", "diclofenac tablets"],
+          "common_doses": ["25mg", "50mg", "75mg", "100mg"],
+          "routes": ["oral", "IM", "rectal"]
+        },
+        {
+          "ciel_id": 71108,
+          "uuid": "3cd25170-26fe-102b-80cb-0017a47871b2",
+          "name": "Ampicillin",
+          "datatype": "coded",
+          "drug_class": "Antibiotic",
+          "synonyms": ["ampicillin", "ampicillin injection", "ampicillin IV", "penbritin"],
+          "common_doses": ["250mg", "500mg", "1g"],
+          "routes": ["oral", "IV", "IM"]
+        },
+        {
+          "ciel_id": 72786,
+          "uuid": "3cd267a4-26fe-102b-80cb-0017a47871b2",
+          "name": "Diazepam",
+          "datatype": "coded",
+          "drug_class": "Benzodiazepine",
+          "synonyms": ["diazepam", "valium", "diazepam injection", "diazepam rectal", "anticonvulsant"],
+          "common_doses": ["2mg", "5mg", "10mg"],
+          "routes": ["oral", "IV", "rectal"]
+        },
+        {
+          "ciel_id": 76497,
+          "uuid": "3cd28cf4-26fe-102b-80cb-0017a47871b2",
+          "name": "Glibenclamide",
+          "datatype": "coded",
+          "drug_class": "Antidiabetic",
+          "synonyms": ["glibenclamide", "glyburide", "daonil", "sulfonylurea", "oral hypoglycemic"],
+          "common_doses": ["2.5mg", "5mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 71789,
+          "uuid": "3cd259b6-26fe-102b-80cb-0017a47871b2",
+          "name": "Atenolol",
+          "datatype": "coded",
+          "drug_class": "Beta-blocker",
+          "synonyms": ["atenolol", "tenormin", "beta blocker", "atenolol tablets"],
+          "common_doses": ["25mg", "50mg", "100mg"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 72833,
+          "uuid": "3cd268bc-26fe-102b-80cb-0017a47871b2",
+          "name": "Erythromycin",
+          "datatype": "coded",
+          "drug_class": "Antibiotic",
+          "synonyms": ["erythromycin", "erythrocin", "macrolide", "erythromycin tablets", "erythromycin suspension", "eryth"],
+          "common_doses": ["250mg", "500mg", "125mg/5mL"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 75222,
+          "uuid": "3cd28268-26fe-102b-80cb-0017a47871b2",
+          "name": "Fluconazole",
+          "datatype": "coded",
+          "drug_class": "Antifungal",
+          "synonyms": ["fluconazole", "diflucan", "antifungal", "fluconazole capsules", "fluconazole tablets"],
+          "common_doses": ["50mg", "150mg", "200mg"],
+          "routes": ["oral", "IV"]
+        },
+        {
+          "ciel_id": 73370,
+          "uuid": "3cd26d0e-26fe-102b-80cb-0017a47871b2",
+          "name": "Cloxacillin",
+          "datatype": "coded",
+          "drug_class": "Antibiotic",
+          "synonyms": ["cloxacillin", "flucloxacillin", "fluclox", "antistaphylococcal", "cloxacillin capsules"],
+          "common_doses": ["250mg", "500mg"],
+          "routes": ["oral", "IV"]
+        },
+        {
+          "ciel_id": 81724,
+          "uuid": "3cd2b4d6-26fe-102b-80cb-0017a47871b2",
+          "name": "Nystatin",
+          "datatype": "coded",
+          "drug_class": "Antifungal",
+          "synonyms": ["nystatin", "mycostatin", "nystatin drops", "nystatin oral suspension", "nystatin for thrush"],
+          "common_doses": ["100000 units/mL"],
+          "routes": ["oral"]
+        },
+        {
+          "ciel_id": 78280,
+          "uuid": "3cd29cda-26fe-102b-80cb-0017a47871b2",
+          "name": "Magnesium Sulfate",
+          "datatype": "coded",
+          "drug_class": "Anticonvulsant/Tocolytic",
+          "synonyms": ["magnesium sulfate", "magnesium sulphate", "MgSO4", "mag sulf", "eclampsia treatment", "magnesium for preeclampsia"],
+          "common_doses": ["4g loading", "1g/hour maintenance"],
+          "routes": ["IV", "IM"]
+        },
+        {
+          "ciel_id": 81023,
+          "uuid": "3cd2afcc-26fe-102b-80cb-0017a47871b2",
+          "name": "Oxytocin",
+          "datatype": "coded",
+          "drug_class": "Uterotonic",
+          "synonyms": ["oxytocin", "pitocin", "syntocinon", "oxytocin injection", "uterotonic", "PPH prevention"],
+          "common_doses": ["5 IU", "10 IU"],
+          "routes": ["IV", "IM"]
+        }
+      ]
+    },
+    "lab_orders": {
+      "description": "Common laboratory and imaging investigations",
+      "concepts": [
+        {
+          "ciel_id": 21,
+          "uuid": "3cd0f0a2-26fe-102b-80cb-0017a47871b2",
+          "name": "Complete Blood Count",
+          "datatype": "coded",
+          "synonyms": ["CBC", "complete blood count", "full blood count", "FBC", "blood count", "hemogram", "full hemogram", "complete blood picture"],
+          "sample_type": "blood"
+        },
+        {
+          "ciel_id": 32,
+          "uuid": "3cd10000-26fe-102b-80cb-0017a47871b2",
+          "name": "Malaria Rapid Diagnostic Test",
+          "datatype": "coded",
+          "synonyms": ["malaria RDT", "malaria test", "mRDT", "rapid malaria test", "malaria rapid test", "malaria screen", "BS for malaria", "blood slide malaria", "malaria smear", "blood film malaria"],
+          "sample_type": "blood"
+        },
+        {
+          "ciel_id": 1040,
+          "uuid": "3cd10686-26fe-102b-80cb-0017a47871b2",
+          "name": "HIV Rapid Test",
+          "datatype": "coded",
+          "synonyms": ["HIV test", "HIV rapid test", "HIV screening", "HTC", "HIV testing and counseling", "VCT", "rapid HIV", "HIV antibody test", "HIV status", "test for HIV"],
+          "sample_type": "blood"
+        },
+        {
+          "ciel_id": 887,
+          "uuid": "3cd0fb6e-26fe-102b-80cb-0017a47871b2",
+          "name": "Blood Glucose Test",
+          "datatype": "numeric",
+          "synonyms": ["blood glucose", "blood sugar test", "RBS", "random blood sugar", "fasting blood sugar", "FBS", "glucometer", "glucose test", "sugar test", "OGTT", "glucose tolerance test"],
+          "sample_type": "blood"
+        },
+        {
+          "ciel_id": 45,
+          "uuid": "3cd10342-26fe-102b-80cb-0017a47871b2",
+          "name": "Urinalysis",
+          "datatype": "coded",
+          "synonyms": ["urinalysis", "urine test", "urine analysis", "UA", "urine dipstick", "urine routine", "urine examination", "urine R/E", "microscopy urine"],
+          "sample_type": "urine"
+        },
+        {
+          "ciel_id": 21,
+          "uuid": "3cd0f1c8-26fe-102b-80cb-0017a47871b2",
+          "name": "Hemoglobin",
+          "datatype": "numeric",
+          "synonyms": ["hemoglobin", "haemoglobin", "Hb", "HGB", "hemoglobin level", "blood hemoglobin", "Hb level"],
+          "sample_type": "blood",
+          "units": "g/dL",
+          "range": {"low": 3.0, "high": 20.0, "critical_low": 5.0, "critical_high": 18.0}
+        },
+        {
+          "ciel_id": 5497,
+          "uuid": "3cd4a882-26fe-102b-80cb-0017a47871b2",
+          "name": "CD4 Count",
+          "datatype": "numeric",
+          "synonyms": ["CD4", "CD4 count", "CD4 cell count", "T-cell count", "CD4 lymphocytes", "CD4 absolute count", "immune status"],
+          "sample_type": "blood",
+          "units": "cells/uL",
+          "range": {"low": 0, "high": 3000, "critical_low": 200, "critical_high": null}
+        },
+        {
+          "ciel_id": 856,
+          "uuid": "3cd4a614-26fe-102b-80cb-0017a47871b2",
+          "name": "HIV Viral Load",
+          "datatype": "numeric",
+          "synonyms": ["viral load", "HIV viral load", "VL", "HIV RNA", "plasma viral load", "viral load test", "HIV copies"],
+          "sample_type": "blood",
+          "units": "copies/mL",
+          "range": {"low": 0, "high": 10000000, "critical_low": null, "critical_high": 1000}
+        },
+        {
+          "ciel_id": 307,
+          "uuid": "3cd0943e-26fe-102b-80cb-0017a47871b2",
+          "name": "Sputum for Acid-Fast Bacilli",
+          "datatype": "coded",
+          "synonyms": ["AFB", "sputum AFB", "acid fast bacilli", "sputum smear", "TB smear", "sputum for TB", "Ziehl-Neelsen", "ZN stain", "sputum microscopy", "sputum examination"],
+          "sample_type": "sputum"
+        },
+        {
+          "ciel_id": 161156,
+          "uuid": "3cdbc000-26fe-102b-80cb-0017a47871b2",
+          "name": "GeneXpert MTB/RIF",
+          "datatype": "coded",
+          "synonyms": ["GeneXpert", "Xpert MTB/RIF", "TB PCR", "molecular TB test", "gene expert", "rapid molecular TB", "Xpert", "MTB RIF"],
+          "sample_type": "sputum"
+        },
+        {
+          "ciel_id": 304,
+          "uuid": "3cd09336-26fe-102b-80cb-0017a47871b2",
+          "name": "Stool Examination",
+          "datatype": "coded",
+          "synonyms": ["stool exam", "stool examination", "stool microscopy", "stool analysis", "stool R/E", "stool routine", "O&P", "ova and parasites", "stool for ova", "stool test"],
+          "sample_type": "stool"
+        },
+        {
+          "ciel_id": 161447,
+          "uuid": "3cdbd122-26fe-102b-80cb-0017a47871b2",
+          "name": "Blood Culture",
+          "datatype": "coded",
+          "synonyms": ["blood culture", "blood C/S", "blood culture and sensitivity", "hemoculture", "bacteremia screen", "sepsis workup blood"],
+          "sample_type": "blood"
+        },
+        {
+          "ciel_id": 45,
+          "uuid": "3cd1043c-26fe-102b-80cb-0017a47871b2",
+          "name": "Pregnancy Test",
+          "datatype": "coded",
+          "synonyms": ["pregnancy test", "urine pregnancy test", "UPT", "beta-hCG", "hCG test", "gravindex", "PT", "preg test"],
+          "sample_type": "urine"
+        },
+        {
+          "ciel_id": 159430,
+          "uuid": "3cdb6e46-26fe-102b-80cb-0017a47871b2",
+          "name": "Hepatitis B Surface Antigen",
+          "datatype": "coded",
+          "synonyms": ["hepatitis B", "HBsAg", "hep B", "hepatitis B test", "hepatitis B surface antigen", "HBV test", "hepatitis B screen"],
+          "sample_type": "blood"
+        },
+        {
+          "ciel_id": 790,
+          "uuid": "3cd0f48e-26fe-102b-80cb-0017a47871b2",
+          "name": "Serum Creatinine",
+          "datatype": "numeric",
+          "synonyms": ["creatinine", "serum creatinine", "renal function", "kidney function test", "creatinine level", "SCr"],
+          "sample_type": "blood",
+          "units": "mg/dL",
+          "range": {"low": 0.1, "high": 15.0, "critical_low": null, "critical_high": 10.0}
+        },
+        {
+          "ciel_id": 654,
+          "uuid": "3cd0e8a6-26fe-102b-80cb-0017a47871b2",
+          "name": "Liver Function Tests",
+          "datatype": "coded",
+          "synonyms": ["LFT", "liver function test", "liver function tests", "liver panel", "hepatic panel", "ALT", "AST", "bilirubin", "liver enzymes", "hepatic function"],
+          "sample_type": "blood"
+        },
+        {
+          "ciel_id": 1006,
+          "uuid": "3cd103b0-26fe-102b-80cb-0017a47871b2",
+          "name": "Lipid Panel",
+          "datatype": "coded",
+          "synonyms": ["lipid panel", "lipid profile", "cholesterol test", "fasting lipids", "total cholesterol", "triglycerides", "HDL", "LDL", "lipid levels"],
+          "sample_type": "blood"
+        },
+        {
+          "ciel_id": 12,
+          "uuid": "3cd0efe0-26fe-102b-80cb-0017a47871b2",
+          "name": "Chest X-ray",
+          "datatype": "coded",
+          "synonyms": ["chest X-ray", "CXR", "chest radiograph", "X-ray chest", "PA chest", "chest film", "lung X-ray", "thoracic X-ray"],
+          "sample_type": "imaging"
+        },
+        {
+          "ciel_id": 160225,
+          "uuid": "3cdbf3c2-26fe-102b-80cb-0017a47871b2",
+          "name": "Widal Test",
+          "datatype": "coded",
+          "synonyms": ["Widal", "Widal test", "typhoid test", "Widal agglutination", "typhoid screen", "salmonella test"],
+          "sample_type": "blood"
+        },
+        {
+          "ciel_id": 729,
+          "uuid": "3cd0f1a0-26fe-102b-80cb-0017a47871b2",
+          "name": "VDRL/RPR",
+          "datatype": "coded",
+          "synonyms": ["VDRL", "RPR", "syphilis test", "syphilis screen", "VDRL test", "RPR test", "treponemal test"],
+          "sample_type": "blood"
+        }
+      ]
+    },
+    "exam_findings": {
+      "description": "Physical examination findings",
+      "concepts": [
+        {
+          "ciel_id": 127640,
+          "uuid": "3cd35ee6-26fe-102b-80cb-0017a47871b2",
+          "name": "Crackles",
+          "datatype": "coded",
+          "synonyms": ["crackles", "crepitations", "rales", "lung crackles", "basal crackles", "fine crackles", "coarse crackles", "bibasal crackles", "bilateral crackles", "crepitations on auscultation"]
+        },
+        {
+          "ciel_id": 136010,
+          "uuid": "3cce669a-26fe-102b-80cb-0017a47871b2",
+          "name": "Wheezing",
+          "datatype": "coded",
+          "synonyms": ["wheezing", "wheeze", "expiratory wheeze", "inspiratory wheeze", "bilateral wheeze", "diffuse wheeze", "rhonchi", "musical sounds", "whistling chest"]
+        },
+        {
+          "ciel_id": 5008,
+          "uuid": "3cd498c2-26fe-102b-80cb-0017a47871b2",
+          "name": "Hepatomegaly",
+          "datatype": "coded",
+          "synonyms": ["hepatomegaly", "enlarged liver", "liver enlargement", "big liver", "palpable liver", "liver below costal margin", "hepatic enlargement", "liver palpable"]
+        },
+        {
+          "ciel_id": 5009,
+          "uuid": "3cd499d0-26fe-102b-80cb-0017a47871b2",
+          "name": "Splenomegaly",
+          "datatype": "coded",
+          "synonyms": ["splenomegaly", "enlarged spleen", "spleen enlargement", "big spleen", "palpable spleen", "splenic enlargement", "spleen palpable"]
+        },
+        {
+          "ciel_id": 135488,
+          "uuid": "3cce6208-26fe-102b-80cb-0017a47871b2",
+          "name": "Lymphadenopathy",
+          "datatype": "coded",
+          "synonyms": ["lymphadenopathy", "enlarged lymph nodes", "swollen lymph nodes", "swollen glands", "lymph node enlargement", "cervical lymphadenopathy", "axillary lymphadenopathy", "inguinal lymphadenopathy", "generalized lymphadenopathy", "palpable lymph nodes"]
+        },
+        {
+          "ciel_id": 460,
+          "uuid": "3cd0a478-26fe-102b-80cb-0017a47871b2",
+          "name": "Edema",
+          "datatype": "coded",
+          "synonyms": ["edema", "oedema", "swelling", "pitting edema", "pedal edema", "peripheral edema", "leg swelling", "ankle swelling", "bilateral leg edema", "generalized edema", "anasarca", "puffy"]
+        },
+        {
+          "ciel_id": 136443,
+          "uuid": "3cce6c12-26fe-102b-80cb-0017a47871b2",
+          "name": "Jaundice",
+          "datatype": "coded",
+          "synonyms": ["jaundice", "icteric", "icterus", "yellow eyes", "yellowish discoloration", "scleral icterus", "yellow skin", "jaundiced", "yellowing"]
+        },
+        {
+          "ciel_id": 5245,
+          "uuid": "3cd4a184-26fe-102b-80cb-0017a47871b2",
+          "name": "Pallor",
+          "datatype": "coded",
+          "synonyms": ["pallor", "pale", "palmar pallor", "conjunctival pallor", "mucous membrane pallor", "anemic appearance", "pale complexion", "severe pallor"]
+        },
+        {
+          "ciel_id": 142630,
+          "uuid": "3cd4aefa-26fe-102b-80cb-0017a47871b2",
+          "name": "Dehydration",
+          "datatype": "coded",
+          "synonyms": ["dehydration", "dehydrated", "dry mucous membranes", "sunken eyes", "reduced skin turgor", "poor skin turgor", "skin tenting", "dry mouth", "severe dehydration", "mild dehydration", "moderate dehydration", "some dehydration", "no dehydration"]
+        },
+        {
+          "ciel_id": 127639,
+          "uuid": "3cd35de4-26fe-102b-80cb-0017a47871b2",
+          "name": "Neck Stiffness",
+          "datatype": "coded",
+          "synonyms": ["neck stiffness", "nuchal rigidity", "stiff neck", "meningism", "meningeal signs", "Kernig sign", "Brudzinski sign", "neck rigidity"]
+        },
+        {
+          "ciel_id": 5105,
+          "uuid": "3cd49f84-26fe-102b-80cb-0017a47871b2",
+          "name": "Abdominal Tenderness",
+          "datatype": "coded",
+          "synonyms": ["abdominal tenderness", "tender abdomen", "abdominal pain on palpation", "guarding", "rebound tenderness", "RIF tenderness", "LIF tenderness", "epigastric tenderness", "suprapubic tenderness", "generalized abdominal tenderness"]
+        },
+        {
+          "ciel_id": 5334,
+          "uuid": "3cd4a5ba-26fe-102b-80cb-0017a47871b2",
+          "name": "Oral Thrush Finding",
+          "datatype": "coded",
+          "synonyms": ["oral thrush", "white patches in mouth", "oral candida", "oropharyngeal candidiasis finding", "white coating tongue", "oral plaques"]
+        },
+        {
+          "ciel_id": 115399,
+          "uuid": "3cccc72a-26fe-102b-80cb-0017a47871b2",
+          "name": "Skin Rash Finding",
+          "datatype": "coded",
+          "synonyms": ["rash", "skin rash", "maculopapular rash", "papular rash", "vesicular rash", "generalized rash", "localized rash", "erythematous rash", "pruritic rash", "eruption"]
+        },
+        {
+          "ciel_id": 136136,
+          "uuid": "3cce6856-26fe-102b-80cb-0017a47871b2",
+          "name": "Decreased Breath Sounds",
+          "datatype": "coded",
+          "synonyms": ["decreased breath sounds", "reduced air entry", "diminished breath sounds", "poor air entry", "absent breath sounds", "reduced breath sounds", "stony dull percussion"]
+        },
+        {
+          "ciel_id": 124193,
+          "uuid": "3cd31dbc-26fe-102b-80cb-0017a47871b2",
+          "name": "Cardiac Murmur",
+          "datatype": "coded",
+          "synonyms": ["murmur", "cardiac murmur", "heart murmur", "systolic murmur", "diastolic murmur", "pansystolic murmur", "ejection murmur", "regurgitant murmur"]
+        }
+      ]
+    },
+    "symptoms": {
+      "description": "Common presenting symptoms and complaints",
+      "concepts": [
+        {
+          "ciel_id": 107,
+          "uuid": "3ccee9d2-26fe-102b-80cb-0017a47871b2",
+          "name": "Cough",
+          "datatype": "coded",
+          "synonyms": ["cough", "coughing", "dry cough", "productive cough", "wet cough", "chronic cough", "blood-stained cough", "hemoptysis", "night cough", "persistent cough", "barking cough"]
+        },
+        {
+          "ciel_id": 140238,
+          "uuid": "3cce8d36-26fe-102b-80cb-0017a47871b2",
+          "name": "Fever",
+          "datatype": "coded",
+          "synonyms": ["fever", "febrile", "pyrexia", "high temperature", "feeling hot", "chills", "rigors", "hot body", "feverish", "chills and rigors", "intermittent fever", "continuous fever"]
+        },
+        {
+          "ciel_id": 139084,
+          "uuid": "3cce7b30-26fe-102b-80cb-0017a47871b2",
+          "name": "Headache",
+          "datatype": "coded",
+          "synonyms": ["headache", "head pain", "cephalgia", "migraine", "tension headache", "frontal headache", "occipital headache", "temporal headache", "severe headache", "throbbing headache"]
+        },
+        {
+          "ciel_id": 142412,
+          "uuid": "3cd4ae00-26fe-102b-80cb-0017a47871b2",
+          "name": "Diarrhea",
+          "datatype": "coded",
+          "synonyms": ["diarrhea", "diarrhoea", "loose stools", "watery stool", "frequent stools", "running stomach", "purging", "bloody stool", "mucoid stool"]
+        },
+        {
+          "ciel_id": 122983,
+          "uuid": "3cd30b74-26fe-102b-80cb-0017a47871b2",
+          "name": "Vomiting",
+          "datatype": "coded",
+          "synonyms": ["vomiting", "emesis", "throwing up", "nausea and vomiting", "projectile vomiting", "bilious vomiting", "blood in vomit", "hematemesis", "puking"]
+        },
+        {
+          "ciel_id": 120749,
+          "uuid": "3cd1a8e0-26fe-102b-80cb-0017a47871b2",
+          "name": "Nausea",
+          "datatype": "coded",
+          "synonyms": ["nausea", "feeling nauseous", "queasy", "feeling sick", "want to vomit", "nauseated"]
+        },
+        {
+          "ciel_id": 120345,
+          "uuid": "3cd197e2-26fe-102b-80cb-0017a47871b2",
+          "name": "Chest Pain",
+          "datatype": "coded",
+          "synonyms": ["chest pain", "chest tightness", "thoracic pain", "substernal pain", "precordial pain", "pleuritic chest pain", "central chest pain", "retrosternal pain", "chest discomfort"]
+        },
+        {
+          "ciel_id": 151,
+          "uuid": "3ccf0002-26fe-102b-80cb-0017a47871b2",
+          "name": "Abdominal Pain",
+          "datatype": "coded",
+          "synonyms": ["abdominal pain", "stomach pain", "stomach ache", "belly pain", "tummy pain", "cramping", "abdominal cramps", "epigastric pain", "lower abdominal pain", "upper abdominal pain", "colicky pain", "flank pain"]
+        },
+        {
+          "ciel_id": 832,
+          "uuid": "3cd0f60a-26fe-102b-80cb-0017a47871b2",
+          "name": "Weight Loss",
+          "datatype": "coded",
+          "synonyms": ["weight loss", "losing weight", "unintentional weight loss", "wasting", "cachexia", "thin", "getting thinner", "slimming down", "lost weight"]
+        },
+        {
+          "ciel_id": 133027,
+          "uuid": "3cce4774-26fe-102b-80cb-0017a47871b2",
+          "name": "Night Sweats",
+          "datatype": "coded",
+          "synonyms": ["night sweats", "nocturnal sweating", "sweating at night", "drenching night sweats", "profuse night sweats", "sweats during sleep"]
+        },
+        {
+          "ciel_id": 122496,
+          "uuid": "3cd2fdb0-26fe-102b-80cb-0017a47871b2",
+          "name": "Dyspnea",
+          "datatype": "coded",
+          "synonyms": ["dyspnea", "dyspnoea", "shortness of breath", "SOB", "breathlessness", "difficulty breathing", "breathing difficulty", "labored breathing", "air hunger", "out of breath", "can't breathe", "breathless"]
+        },
+        {
+          "ciel_id": 5226,
+          "uuid": "3cd4a08c-26fe-102b-80cb-0017a47871b2",
+          "name": "Fatigue",
+          "datatype": "coded",
+          "synonyms": ["fatigue", "tiredness", "malaise", "lethargy", "weakness", "feeling tired", "exhaustion", "body weakness", "general weakness", "no energy", "feeling weak", "lassitude"]
+        },
+        {
+          "ciel_id": 512,
+          "uuid": "3cd0ab94-26fe-102b-80cb-0017a47871b2",
+          "name": "Skin Rash",
+          "datatype": "coded",
+          "synonyms": ["rash", "skin rash", "body rash", "itchy rash", "spots", "skin eruption", "skin lesion", "pruritus", "itching", "scratching"]
+        },
+        {
+          "ciel_id": 116558,
+          "uuid": "3ccd44a0-26fe-102b-80cb-0017a47871b2",
+          "name": "Joint Pain",
+          "datatype": "coded",
+          "synonyms": ["joint pain", "arthralgia", "joint ache", "knee pain", "hip pain", "ankle pain", "wrist pain", "elbow pain", "joint swelling", "polyarthralgia", "body aches", "joint stiffness"]
+        },
+        {
+          "ciel_id": 158843,
+          "uuid": "3cdb47d0-26fe-102b-80cb-0017a47871b2",
+          "name": "Sore Throat",
+          "datatype": "coded",
+          "synonyms": ["sore throat", "throat pain", "pharyngeal pain", "painful swallowing", "odynophagia", "scratchy throat", "irritated throat", "throat infection"]
+        },
+        {
+          "ciel_id": 135595,
+          "uuid": "3cce6366-26fe-102b-80cb-0017a47871b2",
+          "name": "Dysuria",
+          "datatype": "coded",
+          "synonyms": ["dysuria", "painful urination", "burning urination", "pain on urination", "burning sensation when urinating", "difficult urination", "painful micturition"]
+        },
+        {
+          "ciel_id": 147241,
+          "uuid": "3cd4cc80-26fe-102b-80cb-0017a47871b2",
+          "name": "Loss of Appetite",
+          "datatype": "coded",
+          "synonyms": ["loss of appetite", "anorexia", "poor appetite", "not eating", "decreased appetite", "no appetite", "reduced food intake", "food aversion"]
+        },
+        {
+          "ciel_id": 131032,
+          "uuid": "3cce2e2a-26fe-102b-80cb-0017a47871b2",
+          "name": "Convulsions",
+          "datatype": "coded",
+          "synonyms": ["convulsions", "seizures", "fits", "convulsing", "fitting", "tonic-clonic seizure", "febrile seizures", "epileptic seizures", "jerking movements"]
+        },
+        {
+          "ciel_id": 116334,
+          "uuid": "3ccd2db2-26fe-102b-80cb-0017a47871b2",
+          "name": "Difficulty Swallowing",
+          "datatype": "coded",
+          "synonyms": ["difficulty swallowing", "dysphagia", "trouble swallowing", "swallowing difficulty", "food getting stuck", "choking on food", "cannot swallow"]
+        },
+        {
+          "ciel_id": 118789,
+          "uuid": "3ccdc746-26fe-102b-80cb-0017a47871b2",
+          "name": "Vaginal Discharge",
+          "datatype": "coded",
+          "synonyms": ["vaginal discharge", "discharge", "abnormal discharge", "foul smelling discharge", "white discharge", "yellow discharge", "greenish discharge", "vaginal infection"]
+        }
+      ]
+    },
+    "demographics": {
+      "description": "Patient demographic and status concepts",
+      "concepts": [
+        {
+          "ciel_id": 1532,
+          "uuid": "3cd6f604-26fe-102b-80cb-0017a47871b2",
+          "name": "Age",
+          "datatype": "numeric",
+          "units": "years",
+          "synonyms": ["age", "patient age", "years old", "how old", "age in years", "age in months", "age of patient"]
+        },
+        {
+          "ciel_id": 1534,
+          "uuid": "3cd6f86e-26fe-102b-80cb-0017a47871b2",
+          "name": "Age (Months)",
+          "datatype": "numeric",
+          "units": "months",
+          "synonyms": ["age in months", "months old", "month age", "infant age"]
+        },
+        {
+          "ciel_id": 1587,
+          "uuid": "3cd71404-26fe-102b-80cb-0017a47871b2",
+          "name": "Sex",
+          "datatype": "coded",
+          "synonyms": ["sex", "gender", "male", "female", "M", "F", "patient sex", "patient gender"],
+          "answers": [
+            {"ciel_id": 1534, "name": "Male", "synonyms": ["male", "M", "man", "boy"]},
+            {"ciel_id": 1535, "name": "Female", "synonyms": ["female", "F", "woman", "girl"]}
+          ]
+        },
+        {
+          "ciel_id": 5272,
+          "uuid": "3cd6917e-26fe-102b-80cb-0017a47871b2",
+          "name": "Pregnancy Status",
+          "datatype": "coded",
+          "synonyms": ["pregnancy status", "pregnant", "not pregnant", "pregnancy", "gravid", "is she pregnant", "LMP", "last menstrual period", "gestational age"],
+          "answers": [
+            {"ciel_id": 1434, "name": "Pregnant", "synonyms": ["pregnant", "positive pregnancy", "confirmed pregnancy", "is pregnant", "expecting"]},
+            {"ciel_id": 1066, "name": "Not Pregnant", "synonyms": ["not pregnant", "negative pregnancy test", "no pregnancy"]}
+          ]
+        },
+        {
+          "ciel_id": 160540,
+          "uuid": "3cdbfe34-26fe-102b-80cb-0017a47871b2",
+          "name": "Civil Status",
+          "datatype": "coded",
+          "synonyms": ["marital status", "civil status", "married", "single", "widowed", "divorced"],
+          "answers": [
+            {"ciel_id": 1057, "name": "Single", "synonyms": ["single", "unmarried", "never married"]},
+            {"ciel_id": 5555, "name": "Married", "synonyms": ["married", "spouse", "wed"]},
+            {"ciel_id": 1058, "name": "Divorced", "synonyms": ["divorced", "separated"]},
+            {"ciel_id": 1059, "name": "Widowed", "synonyms": ["widowed", "widow", "widower"]}
+          ]
+        }
+      ]
+    },
+    "procedures": {
+      "description": "Common clinical procedures in primary care",
+      "concepts": [
+        {
+          "ciel_id": 162738,
+          "uuid": "3cdc5204-26fe-102b-80cb-0017a47871b2",
+          "name": "Wound Dressing",
+          "datatype": "coded",
+          "synonyms": ["wound dressing", "dressing change", "wound care", "wound management", "dress the wound", "change dressing", "clean wound", "wound cleaning"]
+        },
+        {
+          "ciel_id": 1637,
+          "uuid": "3cd72a70-26fe-102b-80cb-0017a47871b2",
+          "name": "Incision and Drainage",
+          "datatype": "coded",
+          "synonyms": ["incision and drainage", "I&D", "I and D", "drain abscess", "abscess drainage", "incise and drain", "lance", "cut and drain"]
+        },
+        {
+          "ciel_id": 159837,
+          "uuid": "3cdb9f84-26fe-102b-80cb-0017a47871b2",
+          "name": "Male Circumcision",
+          "datatype": "coded",
+          "synonyms": ["circumcision", "male circumcision", "VMMC", "voluntary medical male circumcision", "prepuce removal"]
+        },
+        {
+          "ciel_id": 5622,
+          "uuid": "3cd4c5aa-26fe-102b-80cb-0017a47871b2",
+          "name": "Suturing",
+          "datatype": "coded",
+          "synonyms": ["suturing", "stitching", "wound closure", "suture", "stitches", "laceration repair", "wound repair", "sew up"]
+        },
+        {
+          "ciel_id": 161651,
+          "uuid": "3cdbd920-26fe-102b-80cb-0017a47871b2",
+          "name": "Cervical Cancer Screening (VIA)",
+          "datatype": "coded",
+          "synonyms": ["VIA", "visual inspection with acetic acid", "cervical screening", "cervical cancer screening", "cancer screening cervix", "pap smear", "Pap test", "cervical exam"]
+        },
+        {
+          "ciel_id": 5276,
+          "uuid": "3cd49c74-26fe-102b-80cb-0017a47871b2",
+          "name": "Lumbar Puncture",
+          "datatype": "coded",
+          "synonyms": ["lumbar puncture", "LP", "spinal tap", "CSF collection", "CSF tap", "spinal fluid collection", "meningitis workup procedure"]
+        },
+        {
+          "ciel_id": 164161,
+          "uuid": "3cdc8250-26fe-102b-80cb-0017a47871b2",
+          "name": "Nasogastric Tube Insertion",
+          "datatype": "coded",
+          "synonyms": ["NG tube", "nasogastric tube", "NGT insertion", "nasogastric tube insertion", "NGT", "tube feeding setup"]
+        },
+        {
+          "ciel_id": 5484,
+          "uuid": "3cd4a728-26fe-102b-80cb-0017a47871b2",
+          "name": "IV Cannulation",
+          "datatype": "coded",
+          "synonyms": ["IV access", "IV cannulation", "intravenous access", "IV line", "cannulation", "set IV", "drip", "IV drip", "put up a drip", "start IV"]
+        }
+      ]
+    },
+    "follow_up": {
+      "description": "Follow-up, disposition, and referral concepts",
+      "concepts": [
+        {
+          "ciel_id": 5096,
+          "uuid": "3cd49a9e-26fe-102b-80cb-0017a47871b2",
+          "name": "Return Visit Date",
+          "datatype": "date",
+          "synonyms": ["return visit", "follow up date", "follow-up date", "return date", "next appointment", "come back on", "review date", "next visit", "return in", "see in", "follow up in", "RVD", "appointment date"]
+        },
+        {
+          "ciel_id": 1272,
+          "uuid": "3cd11684-26fe-102b-80cb-0017a47871b2",
+          "name": "Referral",
+          "datatype": "coded",
+          "synonyms": ["referral", "refer", "refer to", "send to", "transfer to", "referral to hospital", "refer to specialist", "refer out", "referral letter", "refer for further management"],
+          "answers": [
+            {"ciel_id": 1275, "name": "Referred to Hospital", "synonyms": ["refer to hospital", "hospital referral", "send to hospital"]},
+            {"ciel_id": 1597, "name": "Referred to Specialist", "synonyms": ["refer to specialist", "specialist referral", "specialty consult"]},
+            {"ciel_id": 164407, "name": "Referred to Laboratory", "synonyms": ["refer to lab", "lab referral"]}
+          ]
+        },
+        {
+          "ciel_id": 1654,
+          "uuid": "3cd72da4-26fe-102b-80cb-0017a47871b2",
+          "name": "Admission",
+          "datatype": "coded",
+          "synonyms": ["admission", "admit", "admit to ward", "hospital admission", "inpatient", "admit patient", "admitted", "needs admission", "for admission", "admitted to hospital"]
+        },
+        {
+          "ciel_id": 1655,
+          "uuid": "3cd72ed0-26fe-102b-80cb-0017a47871b2",
+          "name": "Discharge",
+          "datatype": "coded",
+          "synonyms": ["discharge", "discharged", "discharge home", "sent home", "going home", "discharge from hospital", "discharge patient", "fit for discharge"]
+        },
+        {
+          "ciel_id": 160563,
+          "uuid": "3cdc02d0-26fe-102b-80cb-0017a47871b2",
+          "name": "Disposition",
+          "datatype": "coded",
+          "synonyms": ["disposition", "patient disposition", "outcome", "plan", "what to do", "next steps", "management plan"],
+          "answers": [
+            {"ciel_id": 1654, "name": "Admit to Hospital", "synonyms": ["admit", "admission", "hospitalize"]},
+            {"ciel_id": 1655, "name": "Discharge", "synonyms": ["discharge", "send home", "home"]},
+            {"ciel_id": 1272, "name": "Refer", "synonyms": ["refer", "referral", "transfer"]},
+            {"ciel_id": 159791, "name": "Died", "synonyms": ["died", "expired", "dead", "death", "deceased", "RIP"]},
+            {"ciel_id": 160016, "name": "Observation", "synonyms": ["observe", "observation", "watch", "monitor", "keep for observation"]}
+          ]
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "total_concepts": 165,
+    "supported_locales": ["en", "fr", "sw", "pt"],
+    "openmrs_version_compatibility": ">=2.0.0",
+    "ciel_dictionary_version": "2024-Q4",
+    "notes": [
+      "UUIDs are illustrative; actual UUIDs should be sourced from the target OpenMRS instance CIEL dictionary.",
+      "Synonyms include informal and spoken forms to support voice-based data entry.",
+      "Concept IDs are based on the CIEL dictionary (Columbia International eHealth Laboratory).",
+      "Range values for vitals are general adult reference ranges; pediatric ranges may differ.",
+      "Drug concepts reference the generic formulation; brand names are locale-specific.",
+      "ICD-10 codes are mapped to the primary/unspecified code for each diagnosis.",
+      "This mapping file is intended for use with speech-to-text clinical documentation in resource-limited settings."
+    ]
+  }
+}

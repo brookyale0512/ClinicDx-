@@ -1,0 +1,59 @@
+# Fresh 2-query CDS training from base MedGemma
+# Target: A100 40GB
+# Dataset: 3,611 CDS (2-query only) + 1,500 SCRIBE
+
+model:
+  name: "/var/www/ClinicDx/model/medgemma"   # Local model path
+  max_seq_length: 8192
+  dtype: "bfloat16"
+  load_in_4bit: false
+  trust_remote_code: true
+
+vision:
+  freeze: true
+
+lora:
+  r: 64
+  lora_alpha: 64
+  lora_dropout: 0.0
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  bias: "none"
+  use_gradient_checkpointing: true
+
+training:
+  output_dir: "./checkpoints"
+  per_device_train_batch_size: 2        # Reduced for 40GB (vs 4 on 80GB)
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 8        # Doubled to keep effective batch=16
+  num_train_epochs: 3
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  optim: "adamw_torch"
+  bf16: true
+  fp16: false
+  eval_strategy: "steps"
+  eval_steps: 100
+  save_strategy: "steps"
+  save_steps: 100
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+  logging_steps: 10
+  logging_first_step: true
+  seed: 42
+  data_seed: 42
+
+data:
+  train_file: "./train_2query.jsonl"
+  val_file: "./val_2query.jsonl"

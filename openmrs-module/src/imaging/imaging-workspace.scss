@@ -1,0 +1,116 @@
+@use '@carbon/styles/scss/spacing';
+@use '@carbon/styles/scss/type';
+@use '@carbon/colors';
+
+.workspaceContainer { display: flex; flex-direction: column; height: 100%; padding: spacing.$spacing-05; }
+.loadingContainer { display: flex; align-items: center; justify-content: center; height: 100%; }
+.header { margin-bottom: spacing.$spacing-05; }
+.titleRow { display: flex; align-items: center; gap: spacing.$spacing-03; margin-bottom: spacing.$spacing-02; }
+.title { @include type.type-style('heading-03'); margin: 0; }
+.subtitle { @include type.type-style('body-01'); color: colors.$gray-70; margin: 0; }
+.content { flex: 1; display: flex; flex-direction: column; gap: spacing.$spacing-05; overflow-y: auto; }
+.patientInfo { h5 { @include type.type-style('heading-compact-01'); margin-bottom: spacing.$spacing-03; } }
+.patientDetails { p { @include type.type-style('body-compact-01'); margin: spacing.$spacing-02 0; } }
+
+.dropZone {
+  border: 2px dashed colors.$gray-40;
+  border-radius: 8px;
+  padding: spacing.$spacing-07;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: spacing.$spacing-03;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: colors.$gray-10;
+
+  &:hover {
+    border-color: colors.$blue-60;
+    background: colors.$blue-10;
+  }
+
+  &.dragOver {
+    border-color: colors.$blue-60;
+    background: colors.$blue-10;
+    border-style: solid;
+  }
+}
+
+.dropIcon {
+  fill: colors.$gray-50;
+
+  .dragOver & {
+    fill: colors.$blue-60;
+  }
+}
+
+.dropTitle {
+  @include type.type-style('heading-compact-01');
+  margin: 0;
+  color: colors.$gray-80;
+}
+
+.dropHint {
+  @include type.type-style('body-compact-01');
+  margin: 0;
+  color: colors.$gray-60;
+}
+
+.dropFormats {
+  @include type.type-style('label-01');
+  margin: 0;
+  color: colors.$gray-50;
+}
+
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: spacing.$spacing-03;
+}
+
+.listTitle {
+  @include type.type-style('heading-compact-01');
+  margin: 0;
+}
+
+.fileItem {
+  cursor: pointer;
+  transition: border-color 0.15s;
+  border: 2px solid transparent;
+  padding: spacing.$spacing-03;
+
+  &.selected {
+    border-color: colors.$blue-60;
+  }
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: spacing.$spacing-03;
+}
+
+.fileIcon {
+  fill: colors.$purple-60;
+  flex-shrink: 0;
+}
+
+.fileInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fileName {
+  @include type.type-style('body-compact-01');
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileMeta {
+  @include type.type-style('label-01');
+  color: colors.$gray-60;
+}

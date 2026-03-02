@@ -1,0 +1,120 @@
+@use '@carbon/styles/scss/spacing';
+@use '@carbon/styles/scss/type';
+@use '@carbon/colors';
+
+.workspaceContainer { display: flex; flex-direction: column; height: 100%; padding: spacing.$spacing-05; }
+.loadingContainer { display: flex; align-items: center; justify-content: center; height: 100%; }
+.header { margin-bottom: spacing.$spacing-05; }
+.titleRow { display: flex; align-items: center; gap: spacing.$spacing-03; margin-bottom: spacing.$spacing-02; }
+.title { @include type.type-style('heading-03'); margin: 0; }
+.subtitle { @include type.type-style('body-01'); color: colors.$gray-70; margin: 0; }
+.content { flex: 1; display: flex; flex-direction: column; gap: spacing.$spacing-05; overflow-y: auto; }
+.patientInfo { h5 { @include type.type-style('heading-compact-01'); margin-bottom: spacing.$spacing-03; } }
+.patientDetails { p { @include type.type-style('body-compact-01'); margin: spacing.$spacing-02 0; } }
+
+.captureSection {
+  display: flex;
+  gap: spacing.$spacing-03;
+}
+
+.cameraContainer {
+  display: flex;
+  flex-direction: column;
+  gap: spacing.$spacing-03;
+}
+
+.videoPreview {
+  width: 100%;
+  max-height: 300px;
+  border-radius: 4px;
+  background: colors.$gray-90;
+  object-fit: contain;
+}
+
+.cameraActions {
+  display: flex;
+  gap: spacing.$spacing-03;
+  justify-content: center;
+}
+
+.previewTile {
+  h5 { @include type.type-style('heading-compact-01'); margin-bottom: spacing.$spacing-03; }
+}
+
+.imagePreview {
+  background: colors.$gray-10;
+  border-radius: 4px;
+  padding: spacing.$spacing-03;
+  text-align: center;
+  max-height: 300px;
+  overflow: hidden;
+}
+
+.previewImage {
+  max-width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.previewFileName {
+  @include type.type-style('label-01');
+  color: colors.$gray-60;
+  margin-top: spacing.$spacing-02;
+}
+
+.imageList {
+  display: flex;
+  flex-direction: column;
+  gap: spacing.$spacing-03;
+}
+
+.listTitle {
+  @include type.type-style('heading-compact-01');
+  margin: 0;
+}
+
+.imageItem {
+  cursor: pointer;
+  transition: border-color 0.15s;
+  border: 2px solid transparent;
+  padding: spacing.$spacing-03;
+
+  &.selected {
+    border-color: colors.$blue-60;
+  }
+}
+
+.imageThumbRow {
+  display: flex;
+  align-items: center;
+  gap: spacing.$spacing-03;
+}
+
+.thumbnail {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.imageInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.imageFileName {
+  @include type.type-style('body-compact-01');
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.imageTime {
+  @include type.type-style('label-01');
+  color: colors.$gray-60;
+}
