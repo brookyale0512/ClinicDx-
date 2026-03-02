@@ -1,0 +1,75 @@
+# ── Model Weights (use Git LFS or HuggingFace Hub instead) ──────────────────
+*.safetensors
+*.pt
+*.bin
+*.kenlm
+*.gguf
+*.onnx
+*.pkl
+
+# ── Knowledge Base Indexes (distribute separately) ──────────────────────────
+*.mv2
+*.mv2.index
+
+# ── Node / JavaScript ────────────────────────────────────────────────────────
+node_modules/
+dist/
+.next/
+build/
+*.js.map
+*.LICENSE.txt
+.npm/
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+*.egg
+
+# ── HuggingFace Dataset Cache ─────────────────────────────────────────────────
+data/.cache/
+*.arrow
+*.parquet
+
+# ── Training Artifacts ───────────────────────────────────────────────────────
+checkpoints/
+checkpoints_*/
+unsloth_compiled_cache/
+runs/
+wandb/
+mlruns/
+*.log
+
+# ── Audio / Media (large files) ──────────────────────────────────────────────
+*.wav
+*.mp3
+*.flac
+*.webm
+*.opus
+encoder_cache/
+
+# ── IDE & OS ─────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.env
+.env.*
+!.env.example
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Backup / scratch directories ─────────────────────────────────────────────
+*-backup-*/
+*.bak

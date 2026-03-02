@@ -1,0 +1,37 @@
+model:
+  base_model_path: "/var/www/ClinicDx/scribe_version/model/medgemma_cds_think_v1"
+  audio_encoder_path: "/var/www/ClinicDx/scribe_version/medASR"
+  torch_dtype: "bfloat16"
+
+data:
+  clips_jsonl: "/var/www/ClinicDx/dataset/CEIL_speech_dataset/audio/clips.jsonl"
+  audio_dir: "/var/www/ClinicDx/dataset/CEIL_speech_dataset/audio/clips"
+  precomputed_dir: "/var/www/ClinicDx/dataset/CEIL_speech_dataset/audio/encoder_cache"
+  manifest_jsonl: "/var/www/ClinicDx/dataset/CEIL_speech_dataset/audio/manifest.jsonl"
+  val_fraction: 0.05
+  max_clips: 0  # 0 = all
+
+training:
+  epochs: 5
+  batch_size: 2
+  gradient_accumulation_steps: 4
+  learning_rate: 1.0e-3
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  warmup_steps: 500
+  contrastive_weight: 0.1
+  checkpoint_dir: "/var/www/ClinicDx/scribe_version/checkpoints_cds"
+  checkpoint_every_steps: 5000
+  log_every_steps: 10
+  seed: 42
+
+audio:
+  sample_rate: 16000
+  mm_tokens_per_audio: 64
+
+system_prompt: |
+  You are a medical concept extractor for an OpenMRS clinic in Africa.
+  Audio embeddings from a clinical recording are provided between
+  <start_of_audio> and <end_of_audio> markers.
+  Extract structured medical observations from the audio.
+  Return ONLY key: value lines matching concepts from the manifest.

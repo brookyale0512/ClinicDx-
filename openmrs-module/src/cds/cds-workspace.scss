@@ -1,0 +1,286 @@
+@use '@carbon/styles/scss/spacing';
+@use '@carbon/styles/scss/type';
+@use '@carbon/colors';
+
+/* ── Layout ────────────────────────────────────────────────────── */
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.centerBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* Screen-reader only live region */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.header {
+  padding: spacing.$spacing-05;
+  border-bottom: 1px solid colors.$gray-20;
+  background: colors.$white-0;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: spacing.$spacing-03;
+  margin-bottom: spacing.$spacing-02;
+
+  h4 {
+    @include type.type-style('heading-03');
+    margin: 0;
+  }
+}
+
+.headerSub {
+  @include type.type-style('body-compact-01');
+  color: colors.$gray-60;
+  margin: 0;
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: spacing.$spacing-05;
+  display: flex;
+  flex-direction: column;
+  gap: spacing.$spacing-04;
+}
+
+/* ── Patient Card ──────────────────────────────────────────────── */
+
+.patientCard {
+  h5 {
+    @include type.type-style('heading-compact-01');
+    margin: 0 0 spacing.$spacing-03 0;
+    color: colors.$gray-80;
+  }
+}
+
+.patientGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: spacing.$spacing-03 spacing.$spacing-05;
+}
+
+.label {
+  @include type.type-style('label-01');
+  display: block;
+  color: colors.$gray-60;
+  text-transform: uppercase;
+  letter-spacing: 0.32px;
+  margin-bottom: 2px;
+}
+
+.value {
+  @include type.type-style('body-compact-01');
+  display: block;
+  color: colors.$gray-90;
+}
+
+/* ── Action Button ─────────────────────────────────────────────── */
+
+.actionBtn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ── Analyzing Card ────────────────────────────────────────────── */
+
+.analyzingCard {
+  display: flex;
+  align-items: flex-start;
+  gap: spacing.$spacing-04;
+  border-left: 4px solid colors.$blue-60;
+
+  h5 {
+    @include type.type-style('heading-compact-01');
+    margin: 0 0 spacing.$spacing-02 0;
+  }
+
+  p {
+    @include type.type-style('body-compact-01');
+    color: colors.$gray-60;
+    margin: 0;
+  }
+}
+
+.tagRow {
+  display: flex;
+  gap: spacing.$spacing-02;
+  flex-wrap: wrap;
+  margin-top: spacing.$spacing-03;
+}
+
+/* Streaming tag row — displaces inline style={{ marginBottom: '0.5rem' }} (R-5) */
+.tagRowStreaming {
+  display: flex;
+  gap: spacing.$spacing-02;
+  flex-wrap: wrap;
+  margin-bottom: spacing.$spacing-04;
+}
+
+/* ── Error Card ────────────────────────────────────────────────── */
+
+.errorCard {
+  display: flex;
+  align-items: center;
+  gap: spacing.$spacing-03;
+  background: colors.$red-10;
+  border-left: 4px solid colors.$red-60;
+
+  svg { fill: colors.$red-60; flex-shrink: 0; }
+  p { @include type.type-style('body-01'); color: colors.$red-70; margin: 0; }
+}
+
+/* ── Results Container ─────────────────────────────────────────── */
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: spacing.$spacing-04;
+  animation: fadeIn 0.25s ease;
+}
+
+/* ── Metadata Footer ───────────────────────────────────────────── */
+
+.metaFooter {
+  display: flex;
+  gap: spacing.$spacing-02;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: spacing.$spacing-03;
+  border-top: 1px solid colors.$gray-20;
+}
+
+/* ── Section Cards ─────────────────────────────────────────────── */
+
+.sectionCard {
+  border-left: 4px solid colors.$gray-40;
+  animation: slideUp 0.3s ease both;
+
+  &:nth-child(2) { animation-delay: 0.05s; }
+  &:nth-child(3) { animation-delay: 0.1s; }
+  &:nth-child(4) { animation-delay: 0.15s; }
+  &:nth-child(5) { animation-delay: 0.2s; }
+}
+
+.icon_stethoscope { border-left-color: colors.$blue-60; }
+.icon_database    { border-left-color: colors.$teal-60; }
+.icon_treatment   { border-left-color: colors.$green-60; }
+.icon_shield      { border-left-color: colors.$red-50; }
+.icon_list        { border-left-color: colors.$purple-60; }
+.icon_report      { border-left-color: colors.$gray-50; }
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: spacing.$spacing-03;
+  margin-bottom: spacing.$spacing-03;
+  padding-bottom: spacing.$spacing-03;
+  border-bottom: 1px solid colors.$gray-20;
+
+  svg { fill: colors.$gray-70; flex-shrink: 0; }
+
+  h5 {
+    @include type.type-style('heading-compact-01');
+    margin: 0;
+    color: colors.$gray-90;
+  }
+}
+
+.sectionBody {
+  padding-left: spacing.$spacing-07;
+}
+
+/* ── Markdown ──────────────────────────────────────────────────── */
+
+.mdParagraph {
+  @include type.type-style('body-01');
+  margin: 0 0 spacing.$spacing-03 0;
+  line-height: 1.625;
+  color: colors.$gray-90;
+}
+
+.mdH3 {
+  @include type.type-style('heading-compact-01');
+  margin: spacing.$spacing-04 0 spacing.$spacing-02 0;
+  color: colors.$gray-80;
+}
+
+.mdList {
+  @include type.type-style('body-01');
+  margin: 0 0 spacing.$spacing-03 0;
+  padding-left: spacing.$spacing-06;
+  line-height: 1.625;
+  color: colors.$gray-90;
+
+  li {
+    margin-bottom: spacing.$spacing-02;
+  }
+}
+
+/* ── KB Evidence ───────────────────────────────────────────────── */
+
+.kbQuery {
+  @include type.type-style('body-compact-01');
+  font-style: italic;
+  color: colors.$gray-80;
+  flex: 1;
+  min-width: 0;
+}
+
+.kbFeed {
+  border-left: 4px solid colors.$teal-50;
+
+  h6 {
+    @include type.type-style('heading-compact-01');
+    display: flex;
+    align-items: center;
+    gap: spacing.$spacing-02;
+    margin: 0 0 spacing.$spacing-03 0;
+    color: colors.$teal-70;
+    svg { fill: colors.$teal-60; }
+  }
+}
+
+.kbEntry {
+  display: flex;
+  align-items: center;
+  gap: spacing.$spacing-03;
+  padding: spacing.$spacing-02 0;
+  flex-wrap: wrap;
+
+  & + & {
+    border-top: 1px solid colors.$gray-20;
+  }
+}
+
+/* ── Animations ────────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

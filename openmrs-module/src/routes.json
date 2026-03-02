@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json.openmrs.org/routes.schema.json",
+  "backendDependencies": {
+    "webservices.rest": ">=2.2.0"
+  },
+  "extensions": [
+    {
+      "name": "clinicdx-cds-action-button",
+      "slot": "action-menu-patient-chart-items-slot",
+      "component": "clinicDxCdsButton",
+      "order": 5
+    },
+    {
+      "name": "clinicdx-scribe-action-button",
+      "slot": "action-menu-patient-chart-items-slot",
+      "component": "clinicDxScribeButton",
+      "order": 6
+    },
+    {
+      "name": "clinicdx-ocr-action-button",
+      "slot": "action-menu-patient-chart-items-slot",
+      "component": "clinicDxOcrButton",
+      "order": 7
+    },
+    {
+      "name": "clinicdx-imaging-action-button",
+      "slot": "action-menu-patient-chart-items-slot",
+      "component": "clinicDxImagingButton",
+      "order": 8
+    }
+  ],
+  "workspaces": [
+    {
+      "name": "clinicdx-cds-workspace",
+      "component": "clinicDxCdsWorkspace",
+      "title": "ClinicDx CDS",
+      "type": "clinicdx-cds",
+      "width": "wider"
+    },
+    {
+      "name": "clinicdx-scribe-workspace",
+      "component": "clinicDxScribeWorkspace",
+      "title": "ClinicDx Scribe",
+      "type": "clinicdx-scribe",
+      "width": "wider"
+    },
+    {
+      "name": "clinicdx-ocr-workspace",
+      "component": "clinicDxOcrWorkspace",
+      "title": "ClinicDx OCR",
+      "type": "clinicdx-ocr",
+      "width": "wider"
+    },
+    {
+      "name": "clinicdx-imaging-workspace",
+      "component": "clinicDxImagingWorkspace",
+      "title": "ClinicDx Imaging",
+      "type": "clinicdx-imaging",
+      "width": "wider"
+    }
+  ]
+}
