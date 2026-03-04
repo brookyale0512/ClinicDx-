@@ -143,7 +143,7 @@ clinicdx/
 
 ## The Model
 
-ClinicDx uses a single fine-tuned model: **`medgemma_cds_think_v1`**
+ClinicDx uses a single fine-tuned model: **[`medgemma_cds_think_v1`](https://huggingface.co/ClinicDx1/ClinicDx)**
 
 This model is derived from [Google's MedGemma](https://huggingface.co/google/medgemma-4b-it) through three training stages:
 
