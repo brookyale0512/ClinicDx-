@@ -157,7 +157,19 @@ medgemma_cds_think_v1  ← production model (LoRA merged)
 medgemma_cds_think_v1 + projector_final.pt  ← full Scribe model
 ```
 
-**Model weights:** Hosted on HuggingFace (see model card). The repository contains only training code.
+**Model weights:** Hosted on Hugging Face. This repository contains training and serving code only.
+
+### Model Registry
+
+- **Repository:** `https://huggingface.co/ClinicDx1/ClinicDx`
+- **Latest published revision:** `a8f17b3f3caf3f30319d2ef42a8caf9523304ddf`
+- **Deployment recommendation:** Pin to an explicit revision in production for reproducibility.
+
+```bash
+# Pull model artifacts to the expected server path
+hf download ClinicDx1/ClinicDx --repo-type model \
+  --local-dir /var/www/ClinicDx/model/medgemma_cds_think_v1
+```
 
 ### Knowledge Base
 
