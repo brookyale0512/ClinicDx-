@@ -118,11 +118,11 @@ clinicdx/
 │   │   ├── prep_cds_training.py
 │   │   └── scripts/           # run_training.sh, deploy.sh, setup_env.sh
 │   │
-│   ├── scribe-projector/      # Audio projector training
+│   ├── scribe-projector/      # AudioProjector training (only trainable component)
+│   │   ├── train_audio_projector.py
 │   │   ├── train_projector.py
-│   │   ├── train_text_sft.py
 │   │   ├── data_loader.py
-│   │   ├── evaluate.py
+│   │   ├── validate_scribe.py
 │   │   └── configs/
 │   │
 │   └── kb-tool-use-lora/      # KB-aware LoRA (2-query tool-use format)
@@ -145,27 +145,23 @@ clinicdx/
 
 ClinicDx uses a single fine-tuned model: **[`medgemma_cds_think_v1`](https://huggingface.co/ClinicDx1/ClinicDx)**
 
-This model is derived from [Google's MedGemma](https://huggingface.co/google/medgemma-4b-it) through three training stages:
+This model is derived from [Google's MedGemma](https://huggingface.co/google/medgemma-4b-it) through two training stages:
 
 ```
 MedGemma 4B-IT (Google base, multimodal, 4.3B params)
       │
-      ↓  Stage 1: SFT on 200k Voice Scribe medical text examples
-medgemma_sft  (text LoRA merged back into multimodal shell)
+      ↓  Stage 1: CDS KB tool-use LoRA SFT (r=64, all 7 projection modules)
+      │    Base loaded as causal LM (vision tower frozen)
+      │    Format: [CDS] tag + <think>/<KB_QUERY> XML multi-turn tool-use
+      │    Dataset: ~8.5k CDS cases, think_format
+      │    Best checkpoint: checkpoint-3712 (eval_loss 0.192, token_acc 92.3%)
+medgemma_cds_think_v1  ← deployed CDS model (LoRA merged, Feb 28 2026)
       │
-      ↓  Stage 2: CDS KB tool-use LoRA (r=64, all 7 projection modules)
-      │    Dataset: 42k CDS cases, multi-turn <think>/<KB_QUERY> format
-      │    Best checkpoint: checkpoint-4500 (eval_loss 0.3178)
-medgemma_cds_kb  (LoRA merged — early production reference)
-      │
-      ↓  Stage 3 (current): re-trained on fresh enriched CDS dataset
-      │    Base: medgemma-4b-it (causal LM, vision frozen)
-      │    Format: [CDS] tag + <think>/<KB_QUERY> XML tool-use
-      │    Dataset: ~29k production CDS cases (v2), cyclic training
-medgemma_cds_think_v1  ← deployed model (LoRA merged)
-      │
-      ↓  Stage 4: AudioProjector training (11.8M params, frozen base)
-medgemma_cds_think_v1 + projector_final.pt  ← full Scribe model
+      ↓  Stage 2: AudioProjector training only (11.8M params)
+      │    Base LLM frozen — CDS capability unchanged
+      │    Trained on 23k pre-cached audio clips (MedASR encoder output)
+      │    from CEIL speech dataset (537k clips total)
+medgemma_cds_think_v1 + projector_final.pt  ← full Scribe model (deployed)
 ```
 
 **Model weights:** Hosted on Hugging Face. This repository contains training and serving code only.
@@ -211,11 +207,14 @@ python -m kb.daemon 4276
 ```bash
 cd services/unified-model-server
 pip install -r requirements.txt
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 python serve_unified.py \
   --model-dir /path/to/medgemma_cds_think_v1 \
   --projector /path/to/projector_final.pt \
   --port 8000
 ```
+
+The server loads three components: MedASR encoder (105M, frozen), AudioProjector (11.8M, trained), and the merged CDS model (4.3B, frozen). Only the projector weights vary between deployments.
 
 ### 3. Start the Middleware
 
@@ -283,7 +282,7 @@ Set `middlewareUrl` in OpenMRS config to point to your middleware (`http://local
 | `KB_INDEX_DIR` | `/var/www/kbToolUseLora/kb` | Path to `.mv2` KB index files |
 | `MODEL_SERVER_URL` | `http://10.128.0.4:8000` | Unified model server URL |
 | `KB_URL` | `http://10.128.0.4:4276` | KB daemon URL |
-| `MODEL_NAME` | `/var/www/ClinicDx/model/medgemma_cds_think_v1` | Model identifier |
+| `MODEL_NAME` | `/var/www/ClinicDx/model/medgemma_cds_think_v1` | Path to merged CDS model |
 | `OPENMRS_URL` | `http://localhost:8080/openmrs` | OpenMRS base URL |
 | `OPENMRS_USER` | `admin` | OpenMRS credentials |
 | `OPENMRS_PASSWORD` | `Admin123` | OpenMRS credentials |
@@ -296,15 +295,25 @@ See [`training/`](training/) for all training code.
 
 ### CDS Model Training Pipeline
 
-The CDS model is trained using a **cyclic SFT approach** on production-enriched clinical cases:
+The next CDS model (`medgemma_cds_v2`) is trained using a **cyclic SFT approach** on production-enriched clinical cases:
 
 1. **Dataset enrichment** (`enrich_production.py`): 29,690 real OpenMRS patient cases are processed by `agent2.py` — a multi-turn ReAct agent that queries the live KB (WHO guidelines + WikiMed) and generates structured CDS outputs in `<think>/<KB_QUERY>/<KB_RESULT>` format. Enrichment runs continuously; training cycles start as batches complete.
 
 2. **Quality filtering** (`prep_cycle1.py`): Enriched records are filtered for structural completeness (`has_exact_six_sections`, `actions_evidence_mapped`, no `meta_contamination`) before being passed to the trainer.
 
-3. **LoRA fine-tuning** (`training/cds-lora/`): SFT on the enriched dataset using LoRA (r=64, all 7 projection modules) on top of `medgemma-4b-it`. Training uses a cyclic strategy — each cycle covers one pass through the current batch of enriched cases. Cycles continue until all 29k cases have been seen once, then a final 2-epoch run trains on the full dataset.
+3. **LoRA SFT** (`training/cds-lora/`): SFT on the enriched dataset using LoRA (r=64, all 7 projection modules) on `medgemma-4b-it` (causal LM, vision frozen). Training is cyclic — each cycle is one pass through the current batch of enriched cases. When all 29k cases have been seen once, a final 2-epoch run trains on the full dataset.
 
 4. **Merge** (`training/cds-lora/merge_lora.py`): Best LoRA checkpoint is merged into the base model weights to produce the standalone `medgemma_cds_v2` model.
+
+### AudioProjector Training
+
+The Scribe projector is trained separately, after the CDS LoRA is already merged:
+
+- **Base model**: `medgemma_cds_think_v1` (frozen — CDS capability cannot degrade)
+- **Only trainable component**: `AudioProjector` (11.8M params)
+- **Training data**: 23k pre-cached MedASR encoder embeddings from the CEIL speech dataset (537k clips available; training uses the pre-computed subset)
+- **Script**: `training/scribe-projector/train_audio_projector.py`
+- **Output**: `projector_final.pt` — loaded alongside the frozen model at inference
 
 ### Training Data Format
 
