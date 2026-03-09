@@ -34,7 +34,7 @@
      ▼                    ▼
 ┌──────────────┐   ┌──────────────────────────────────────┐
 │  KB Daemon   │   │  Unified Model Server  (FastAPI:8000) │
-│ (port 4278+) │   │                                       │
+│ (port 4276) │   │                                       │
 │              │   │  MedASR encoder (105M, frozen)        │
 │ who_know_vec │   │     ↓                                 │
 │  _v2.mv2     │   │  AudioProjector (11.8M, trained)      │
@@ -224,7 +224,7 @@ The server loads three components: MedASR encoder (105M, frozen), AudioProjector
 cd services/middleware
 pip install -r requirements.txt
 export MODEL_SERVER_URL=http://localhost:8000
-export KB_URL=http://localhost:4278
+export KB_URL=http://localhost:4276
 export OPENMRS_URL=http://localhost:8080/openmrs
 export OPENMRS_USER=admin
 export OPENMRS_PASSWORD=Admin123
@@ -267,7 +267,7 @@ Set `middlewareUrl` in OpenMRS config to point to your middleware (`http://local
 | `POST` | `/scribe/process_audio` | Audio → FHIR (direct, no text step) |
 | `POST` | `/scribe/confirm` | POST confirmed observations to OpenMRS |
 
-### KB Daemon (`port 4278`)
+### KB Daemon (`port 4276`)
 
 | Method | Path | Description |
 |---|---|---|
@@ -283,7 +283,7 @@ Set `middlewareUrl` in OpenMRS config to point to your middleware (`http://local
 |---|---|---|
 | `KB_INDEX_DIR` | `/var/www/kbToolUseLora/kb` | Path to `.mv2` KB index files |
 | `MODEL_SERVER_URL` | `http://10.128.0.4:8000` | Unified model server URL |
-| `KB_URL` | `http://10.128.0.4:4278` | KB daemon URL (v2, port 4278) |
+| `KB_URL` | `http://10.128.0.4:4276` | KB daemon URL |
 | `MODEL_NAME` | `/var/www/ClinicDx/model/medgemma_cds_think_v1` | Path to merged CDS model |
 | `OPENMRS_URL` | `http://localhost:8080/openmrs` | OpenMRS base URL |
 | `OPENMRS_USER` | `admin` | OpenMRS credentials |

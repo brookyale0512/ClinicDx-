@@ -23,7 +23,7 @@ log = logging.getLogger("cds")
 router = APIRouter(prefix="/cds", tags=["cds"])
 
 MODEL_SERVER_URL = os.environ.get("MODEL_SERVER_URL", "http://10.128.0.4:8000")
-KB_URL = os.environ.get("KB_URL", "http://10.128.0.4:4277")
+KB_URL = os.environ.get("KB_URL", "http://10.128.0.4:4276")
 MODEL_NAME = os.environ.get("MODEL_NAME", "/var/www/ClinicDx/model/medgemma_cds_think_v1")
 
 MAX_TURNS = 4
