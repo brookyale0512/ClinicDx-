@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-CDS KB Tool-Use LoRA — Merge adapter into base model.
+CDS KB LoRA v2 — Merge LoRA adapter into base model and save as standalone model.
 
-Loads the best LoRA checkpoint, merges into medgemma_sft,
-saves the full merged model to medgemma_cds_kb.
+Loads the best LoRA checkpoint, merges into medgemma-4b-it (text-only causal),
+saves the full merged model to medgemma_cds_v2.
 """
 
 import sys
@@ -19,9 +19,9 @@ from peft import PeftModel
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(message)s", datefmt="%H:%M:%S")
 log = logging.getLogger(__name__)
 
-BASE_MODEL = "/var/www/ClinicDx/model/medgemma_sft"
-CKPT_DIR = Path("/var/www/ClinicDx/training/cds_kb_lora/checkpoints")
-OUTPUT = "/var/www/ClinicDx/model/medgemma_cds_kb"
+BASE_MODEL = "/var/www/ClinicDx/model/medgemma-4b-it"
+CKPT_DIR = Path("/var/www/ClinicDx/training/lora_cds_kb_v2/checkpoints")
+OUTPUT = "/var/www/ClinicDx/model/medgemma_cds_v2"
 
 
 def find_best_checkpoint() -> Path:

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """
-Local KB retrieval daemon (HTTP + JSON).
+KB retrieval daemon — v2 index variant (port 4278).
 
-Endpoints:
-  GET  /health
-  GET  /stats
-  POST /search
+Identical to daemon.py but points to who_knowledge_vec_v2.mv2 (83K enriched
+v2 chunks, built with the custom _lib / memvid-pyo3-shim 0.1.0).
+
+Launch:
+    cd /var/www/kbToolUseLora && python3 -m kb.daemon_v2
+    # or with explicit port:
+    cd /var/www/kbToolUseLora && python3 -m kb.daemon_v2 4278
 """
 
 from __future__ import annotations
@@ -16,15 +19,16 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Dict
 
 try:
-    from kb.retrieval_core import KBRetriever
+    from kb.retrieval_core_v2 import KBRetriever
 except ImportError:
-    from retrieval_core import KBRetriever
+    from retrieval_core_v2 import KBRetriever  # type: ignore[no-redef]
 
-LOGGER = logging.getLogger("kb-daemon")
+LOGGER = logging.getLogger("kb-daemon-v2")
 RETRIEVER: KBRetriever
 CONFIG: Dict[str, Any]
 DEFAULT_HOST = "127.0.0.1"
-DEFAULT_PORT = 4276
+DEFAULT_PORT = 4278
+VEC_INDEX_V2 = "/var/www/kbToolUseLora/kb/who_knowledge_vec_v2.mv2"
 
 
 def _json_response(handler: BaseHTTPRequestHandler, code: int, payload: Dict[str, Any]) -> None:
@@ -39,12 +43,12 @@ def _json_response(handler: BaseHTTPRequestHandler, code: int, payload: Dict[str
 class KBHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         if self.path == "/health":
-            _json_response(self, 200, {"ok": True})
+            _json_response(self, 200, {"ok": True, "index": "v2"})
             return
         if self.path == "/stats":
             try:
-                _json_response(self, 200, {"ok": True, "stats": RETRIEVER.stats()})
-            except Exception as exc:  # pragma: no cover
+                _json_response(self, 200, {"ok": True, "index": "v2", "stats": RETRIEVER.stats()})
+            except Exception as exc:
                 _json_response(self, 500, {"ok": False, "error": str(exc)})
             return
         _json_response(self, 404, {"ok": False, "error": "not_found"})
@@ -69,21 +73,17 @@ class KBHandler(BaseHTTPRequestHandler):
 
         k = int(body.get("k", CONFIG["k"]))
         snippet_chars = int(body.get("snippet_chars", CONFIG["snippet_chars"]))
-        source_mode = str(body.get("source_mode", CONFIG["source_mode"]))
         threshold = float(body.get("threshold", CONFIG["threshold"]))
-        who_first_policy = bool(body.get("who_first_policy", CONFIG["who_first_policy"]))
-        who_failover_threshold = float(
-            body.get("who_failover_threshold", CONFIG["who_failover_threshold"])
-        )
+        search_mode = str(body.get("search_mode", CONFIG["search_mode"]))
+        safe_top1_guardrail = bool(body.get("safe_top1_guardrail", CONFIG["safe_top1_guardrail"]))
 
         result = RETRIEVER.search(
             query=query,
             k=k,
             snippet_chars=snippet_chars,
-            source_mode=source_mode,
             threshold=threshold,
-            who_first_policy=who_first_policy,
-            who_failover_threshold=who_failover_threshold,
+            search_mode=search_mode,
+            safe_top1_guardrail=safe_top1_guardrail,
         )
         _json_response(self, 200, {"ok": True, **result})
 
@@ -97,19 +97,18 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
     CONFIG = {
         "k": 5,
-        "snippet_chars": 3200,
-        "source_mode": "auto",
+        "snippet_chars": 15000,
         "threshold": 0.0,
-        "who_first_policy": False,
-        "who_failover_threshold": 5.0,
+        "search_mode": "rrf",
+        "safe_top1_guardrail": False,
     }
-    RETRIEVER = KBRetriever()
-    RETRIEVER.initialize()
+    RETRIEVER = KBRetriever(who_index=VEC_INDEX_V2)
+    RETRIEVER.initialize(enable_vec=True)
 
     import sys
     port = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PORT
     server = ThreadingHTTPServer((DEFAULT_HOST, port), KBHandler)
-    LOGGER.info("KB daemon listening on http://%s:%d", DEFAULT_HOST, port)
+    LOGGER.info("KB daemon v2 listening on http://%s:%d  (index: %s)", DEFAULT_HOST, port, VEC_INDEX_V2)
     server.serve_forever()
 
 

@@ -23,8 +23,13 @@ def query_kb_http(
     who_failover_threshold: float = 5.0,
     timeout: float = 10.0,
     retries: int = 1,
+    return_full: bool = False,
 ) -> Optional[Dict[str, Any]]:
-    """Query KB daemon and return `hit` compatible with prior call sites."""
+    """Query KB daemon.
+
+    By default returns the best `hit` for backward compatibility.
+    Set return_full=True to get the full response (including `hits` list).
+    """
     payload = {
         "query": query,
         "k": k,
@@ -49,7 +54,7 @@ def query_kb_http(
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             if data.get("ok"):
-                return data.get("hit")
+                return data if return_full else data.get("hit")
             return None
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             last_exc = exc

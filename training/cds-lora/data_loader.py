@@ -9,15 +9,21 @@ highest-impact change from the 3k test run analysis.
 
 Training data format: pre-formatted Gemma 3 multi-turn chat text with
 <KB_QUERY>/<KB_RESULT> tool-use tags already embedded.
+
+Caching: tokenized datasets are saved to disk as Arrow files and reloaded
+on subsequent runs (~2s vs ~7min). Cache auto-invalidates when the source
+JSONL changes (mtime/size) or max_seq_length changes.
 """
 
+import hashlib
 import json
 import logging
+import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 
-from datasets import Dataset
+from datasets import Dataset, load_from_disk
 from transformers import AutoTokenizer
 
 logging.basicConfig(level=logging.INFO)
@@ -31,28 +37,32 @@ class DataConfig:
     max_seq_length: int = 16384
 
 
-def _mask_labels(input_ids: List[int], user_pat: List[int], model_pat: List[int]) -> List[int]:
-    """Set labels=-100 for all tokens in user turns and BOS.
+def _mask_labels(input_ids: List[int], user_pat: List[int], model_pat: List[int],
+                  system_pat: List[int] = None) -> List[int]:
+    """Set labels=-100 for all tokens in user/system turns and BOS.
 
     Walks through the token sequence and tracks whether we're inside a
-    user turn or a model turn. All tokens in user turns (including the
-    <start_of_turn>user marker and KB_RESULT content) are masked.
+    user/system turn or a model turn. All tokens in user and system turns
+    (including the <start_of_turn>user/system marker) are masked.
     Model turn tokens (reasoning, KB queries, final answers) keep their
     original label.
     """
     labels = list(input_ids)
-    in_user = False
+    in_masked = False
     ulen = len(user_pat)
     mlen = len(model_pat)
+    slen = len(system_pat) if system_pat else 0
     n = len(labels)
 
     i = 0
     while i < n:
         if i + ulen <= n and input_ids[i : i + ulen] == user_pat:
-            in_user = True
+            in_masked = True
+        elif system_pat and i + slen <= n and input_ids[i : i + slen] == system_pat:
+            in_masked = True
         elif i + mlen <= n and input_ids[i : i + mlen] == model_pat:
-            in_user = False
-        if in_user:
+            in_masked = False
+        if in_masked:
             labels[i] = -100
         i += 1
 
@@ -61,8 +71,18 @@ def _mask_labels(input_ids: List[int], user_pat: List[int], model_pat: List[int]
     return labels
 
 
+def _cache_fingerprint(jsonl_path: str, max_seq_length: int) -> str:
+    """Deterministic hash from source file identity + tokenization params."""
+    p = Path(jsonl_path)
+    stat = p.stat()
+    key = f"{p.resolve()}|{stat.st_mtime_ns}|{stat.st_size}|{max_seq_length}"
+    return hashlib.sha256(key.encode()).hexdigest()[:16]
+
+
 class CdsDataLoader:
     """Loads pre-formatted KB tool-use training data with loss masking."""
+
+    CACHE_DIR = Path("/var/www/ClinicDx/training/lora_cds_kb_v2/data/.cache")
 
     def __init__(self, tokenizer: AutoTokenizer, config: DataConfig):
         self.tokenizer = tokenizer
@@ -74,17 +94,37 @@ class CdsDataLoader:
         self.model_start_ids = tokenizer.encode(
             "<start_of_turn>model", add_special_tokens=False
         )
+        self.system_start_ids = tokenizer.encode(
+            "<start_of_turn>system", add_special_tokens=False
+        )
 
         logger.info(
-            "CdsDataLoader initialized (max_seq=%d, user_start_tokens=%d, model_start_tokens=%d)",
+            "CdsDataLoader initialized (max_seq=%d, user_start_tokens=%d, model_start_tokens=%d, system_start_tokens=%d)",
             config.max_seq_length,
             len(self.user_start_ids),
             len(self.model_start_ids),
+            len(self.system_start_ids),
         )
 
+    def _cache_path(self, jsonl_path: str, split: str) -> Path:
+        fp = _cache_fingerprint(jsonl_path, self.config.max_seq_length)
+        return self.CACHE_DIR / f"{split}_{fp}"
+
     def prepare_dataset(
-        self, samples: List[Dict[str, Any]], for_training: bool = True
+        self,
+        samples: List[Dict[str, Any]],
+        for_training: bool = True,
+        jsonl_path: Optional[str] = None,
+        split: str = "train",
     ) -> Dataset:
+        if jsonl_path and for_training:
+            cache_dir = self._cache_path(jsonl_path, split)
+            if cache_dir.exists():
+                logger.info("Loading cached tokenized dataset from %s", cache_dir)
+                dataset = load_from_disk(str(cache_dir))
+                self._report_masking_stats(dataset)
+                return dataset
+
         records = [
             {"text": s["text"], "id": s.get("id", ""), "source": s.get("source", "")}
             for s in samples if s.get("text")
@@ -95,10 +135,6 @@ class CdsDataLoader:
 
         tok = self.tokenizer
         max_len = self.config.max_seq_length
-        u_pat = self.user_start_ids
-        m_pat = self.model_start_ids
-        do_mask = for_training
-
         def tokenize_and_mask(examples):
             tokenized = tok(
                 examples["text"],
@@ -109,11 +145,9 @@ class CdsDataLoader:
             tokenized["token_type_ids"] = [
                 [0] * len(ids) for ids in tokenized["input_ids"]
             ]
-            if do_mask:
-                tokenized["labels"] = [
-                    _mask_labels(ids, u_pat, m_pat)
-                    for ids in tokenized["input_ids"]
-                ]
+            tokenized["labels"] = [
+                list(ids) for ids in tokenized["input_ids"]
+            ]
             return tokenized
 
         dataset = dataset.map(
@@ -126,6 +160,14 @@ class CdsDataLoader:
 
         if for_training:
             self._report_masking_stats(dataset)
+            if jsonl_path:
+                cache_dir = self._cache_path(jsonl_path, split)
+                cache_dir.parent.mkdir(parents=True, exist_ok=True)
+                dataset.save_to_disk(str(cache_dir))
+                size_mb = sum(
+                    f.stat().st_size for f in cache_dir.rglob("*") if f.is_file()
+                ) / 1e6
+                logger.info("Cached tokenized dataset to %s (%.0f MB)", cache_dir, size_mb)
 
         return dataset
 

@@ -1,12 +1,15 @@
-# CDS KB Tool-Use LoRA — Training Configuration
-# ================================================
-# Base: medgemma_sft (Voice Scribe LoRA merged, multimodal)
-# LoRA r=64 on language model projections only
-# DDP across 2 A100 nodes, fallback: world_size=1 for solo
+# CDS KB LoRA — v2 Training Config
+# Based on think_v1 (train run 065804, Feb 27 2026) — the successful reference run
+# Base: medgemma-4b-it (text-only causal LM, vision frozen)
+# Format: [CDS] tag + <think>/<KB_QUERY> XML tool-use
+# No loss masking (full-sequence loss, same as think_v1)
+#
+# Cycle 1: 11,484 train / 600 val (quality-filtered from 13k enriched records)
+# Effective batch: 4 × 4 = 16 → ~718 steps for 1 epoch
 
 model:
-  name: "/var/www/ClinicDx/model/medgemma_sft"
-  max_seq_length: 16384
+  name: "/var/www/ClinicDx/model/medgemma-4b-it"
+  max_seq_length: 8192
   dtype: "bfloat16"
   load_in_4bit: false
   trust_remote_code: true
@@ -17,7 +20,7 @@ vision:
 lora:
   r: 64
   lora_alpha: 64
-  lora_dropout: 0.0
+  lora_dropout: 0.05
   target_modules:
     - "q_proj"
     - "k_proj"
@@ -29,19 +32,12 @@ lora:
   bias: "none"
   use_gradient_checkpointing: true
 
-distributed:
-  backend: "nccl"
-  master_addr: "10.128.0.4"
-  master_port: 29500
-  world_size: 1                    # Solo A100-80GB (40GB can't fit batch>1 at 16k seq)
-  nccl_timeout: 600
-
 training:
-  output_dir: "/var/www/ClinicDx/training/cds_kb_lora/checkpoints"
-  per_device_train_batch_size: 3   # Fits worst-case 16k seq in 70/80GB with 10GB headroom
-  per_device_eval_batch_size: 3
-  gradient_accumulation_steps: 6   # eff_batch = 3 * 6 = 18
-  num_train_epochs: 2
+  output_dir: "/var/www/ClinicDx/training/lora_cds_kb_v2/checkpoints"
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4
+  num_train_epochs: 1
   learning_rate: 2.0e-4
   lr_scheduler_type: "cosine"
   warmup_ratio: 0.05
@@ -51,19 +47,20 @@ training:
   bf16: true
   fp16: false
   eval_strategy: "steps"
-  eval_steps: 250
+  eval_steps: 100
   save_strategy: "steps"
-  save_steps: 250
+  save_steps: 100
   save_total_limit: 5
   load_best_model_at_end: true
   metric_for_best_model: "eval_loss"
   greater_is_better: false
-  early_stopping_patience: 5
   logging_steps: 10
   logging_first_step: true
+  early_stopping_patience: 3
   seed: 42
   data_seed: 42
 
 data:
-  train_file: "/var/www/ClinicDx/training/cds_kb_lora/data/train.jsonl"
-  val_file: "/var/www/ClinicDx/training/cds_kb_lora/data/val.jsonl"
+  # Cycle 1: 11,484 train + 600 val — written by prep_cycle1.py
+  train_file: "/var/www/ClinicDx/training/lora_cds_kb_v2/data/train.jsonl"
+  val_file: "/var/www/ClinicDx/training/lora_cds_kb_v2/data/val.jsonl"
