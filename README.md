@@ -1,300 +1,507 @@
-# ClinicDx — Unified Clinical AI for OpenMRS
+<div align="center">
 
-**ClinicDx** is an OpenMRS microfrontend module that brings AI-powered clinical intelligence directly into the EMR workflow. It integrates a single fine-tuned multimodal model (`medgemma_cds_think_v1`) to provide four capabilities in a single system:
+<img src="docs/assets/clinicdx-logo.png" alt="ClinicDx" width="120" />
 
-| Feature | Description |
-|---|---|
-| **CDS** | Clinical Decision Support with multi-turn KB tool-use |
-| **Scribe** | Voice-to-FHIR: audio → structured OpenMRS observations |
-| **OCR** | Document/prescription digitisation |
-| **Imaging** | Clinical image analysis |
+# ClinicDx
+
+### Offline AI Clinical Intelligence for Sub-Saharan Africa
+
+**Clinical Decision Support · Voice Scribe · Document OCR · Imaging Analysis**
+
+Built on [OpenMRS O3](https://openmrs.org/) · Powered by [MedGemma](https://huggingface.co/google/medgemma-4b-it) · Runs fully offline
+
+[![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE)
+[![OpenMRS](https://img.shields.io/badge/OpenMRS-O3-blue?logo=data:image/svg+xml;base64,)](https://openmrs.org/)
+[![HuggingFace](https://img.shields.io/badge/🤗%20Model-ClinicDx1%2FClinicDx-yellow)](https://huggingface.co/ClinicDx1/ClinicDx)
+[![Website](https://img.shields.io/badge/Website-clinicdx.org-informational)](https://clinicdx.org)
+
+[**Website**](https://clinicdx.org) · [**Model on HuggingFace**](https://huggingface.co/ClinicDx1/ClinicDx) · [**Documentation**](docs/) · [**Report a Bug**](https://github.com/brookyale0512/ClinicDx-/issues)
+
+</div>
 
 ---
 
-## Architecture
+## Overview
+
+ClinicDx is an **open-source AI layer for OpenMRS O3** designed specifically for resource-limited clinical settings in sub-Saharan Africa. It brings four AI-powered capabilities into a single microfrontend module — all running on local hardware with no internet dependency after initial setup.
+
+| Capability | Description |
+|---|---|
+| **Clinical Decision Support (CDS)** | Structured 6-section assessments with evidence citations from a local WHO knowledge base, generated via a multi-turn retrieval-augmented reasoning loop |
+| **Voice Scribe** | Speak clinical observations in natural language — Scribe extracts structured FHIR observations and writes them directly to OpenMRS |
+| **Document OCR** | Digitise referral letters, lab reports, and prescriptions |
+| **Imaging Analysis** | AI-assisted interpretation of clinical images |
+
+Everything runs on a single 4B-parameter multimodal model fine-tuned from [Google MedGemma](https://huggingface.co/google/medgemma-4b-it). The model, knowledge base, and all services operate **fully offline** — no data leaves the facility.
+
+---
+
+## Key Features
+
+- **Truly offline** — after initial model download, zero network dependency
+- **FHIR R4 native** — all Scribe output posts directly to OpenMRS as structured observations
+- **CIEL terminology** — maps to the full CIEL clinical concept vocabulary
+- **Multimodal** — single model handles text (CDS), audio (Scribe), and vision (OCR/Imaging)
+- **Evidence-grounded** — CDS cites WHO guidelines and clinical references from a local vector knowledge base
+- **OpenMRS O3 native** — ships as a standard ESM microfrontend, installs like any other OpenMRS module
+- **Docker Compose deployment** — the entire stack starts with a single command
+- **Designed for low-resource settings** — runs on a single consumer GPU (≥ 8 GB VRAM); CPU mode available
+
+---
+
+## Model
+
+ClinicDx is powered by a single fine-tuned multimodal model:
+
+**[`ClinicDx1/ClinicDx`](https://huggingface.co/ClinicDx1/ClinicDx)** on HuggingFace
+
+| File | Size | Purpose |
+|---|---|---|
+| [`clinicdx-v1-q8.gguf`](https://huggingface.co/ClinicDx1/ClinicDx/blob/main/clinicdx-v1-q8.gguf) | 3.9 GB | Language model (Q8 — only variant, no quality degradation) |
+| [`medasr-encoder.gguf`](https://huggingface.co/ClinicDx1/ClinicDx/blob/main/medasr-encoder.gguf) | 401 MB | MedASR Conformer audio encoder (frozen, 105M params) |
+| [`audio-projector-v3-best.gguf`](https://huggingface.co/ClinicDx1/ClinicDx/blob/main/audio-projector-v3-best.gguf) | 46 MB | AudioProjector v3 — best checkpoint (step 40,000, val LM 0.1042) |
+
+### Training Stages
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  OpenMRS O3 Frontend                    │
-│  openmrs-esm-clinicdx-app  (TypeScript / React)         │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌───────────┐  │
-│  │   CDS    │ │  Scribe  │ │   OCR    │ │  Imaging  │  │
-│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └─────┬─────┘  │
-└───────┼────────────┼────────────┼──────────────┼────────┘
-        │            │            │              │
-        ▼            ▼            ▼              ▼
-┌─────────────────────────────────────────────────────────┐
-│           Python Middleware  (FastAPI : 8321)            │
-│   cds_router.py   scribe_router.py   concept_extractor  │
-└──────────────┬──────────────────────────────────────────┘
-               │ Multi-turn ReAct loop (KB tool-use for CDS)
-               │ Direct audio → observations (Scribe)
-     ┌─────────┴──────────┐
-     │                    │
-     ▼                    ▼
-┌──────────────┐   ┌──────────────────────────────────────┐
-│  KB Daemon   │   │  Unified Model Server  (FastAPI:8000) │
-│  (port 4276) │   │                                       │
-│              │   │  MedASR encoder (105M, frozen)        │
-│  who_know.   │   │     ↓                                 │
-│  mv2         │   │  AudioProjector (11.8M, trained)      │
-│  wikimed.mv2 │   │     ↓                                 │
-│              │   │  MedGemma CDS (4.3B, LoRA merged)     │
-│  /search     │   │                                       │
-│  (lex BM25)  │   │  POST /v1/completions  (CDS text)     │
-└──────────────┘   │  POST /v1/audio/extract (Scribe)      │
-                   └──────────────────────────────────────┘
+Google MedGemma 4B-IT  (base)
+       │
+       ▼  Stage 1 — CDS SFT
+       │  LoRA (r=64, α=128) on 27,592 quality-filtered clinical conversations
+       │  Input masking: only model output turns trained (64% context masked)
+       │  Best checkpoint: step 4,000  |  eval loss 0.4758  |  accuracy 86.25%
+       │
+       ▼  Stage 2 — KB Tool-Use LoRA
+       │  Trained on multi-turn ReAct format with KB retrieval traces
+       │  Teaches the model when and how to query the knowledge base
+       │
+       ▼  Merge LoRA adapters  →  medgemma_cds_think_v1  (production CDS model)
+       │
+       ▼  Stage 3 — AudioProjector Training  (base model frozen)
+          2-layer MLP + LayerNorm projector: MedASR (512-dim) → LLM space (2560-dim)
+          50,000 synthetic clinical audio clips  |  10 epochs
+          Best checkpoint: step 40,000  |  val LM 0.1042  |  key accuracy 84%
+          11,806,720 trainable parameters
 ```
 
-### CDS Data Flow (multi-turn ReAct)
-1. Frontend sends patient case → middleware `/cds/generate`
-2. Middleware builds Gemma chat prompt and calls model server
-3. Model emits `<KB_QUERY>diagnosis term</KB_QUERY>`
-4. Middleware queries KB daemon → injects `<KB_RESULT>` back
-5. Up to 4 turns until `## Clinical Assessment` section appears
-6. Cleaned markdown response returned to frontend
+---
 
-### Scribe Data Flow (direct audio)
-1. Doctor records audio in browser → frontend sends to middleware `/scribe/process_audio`
-2. Middleware POSTs audio bytes to model server `/v1/audio/extract`
-3. MedASR encodes audio → AudioProjector projects to LLM space → MedGemma decodes
-4. Structured `label: value` observations returned
-5. Middleware maps observations to CIEL concept codes → builds FHIR R4 payloads
-6. Doctor confirms → middleware POSTs FHIR observations to OpenMRS
+## System Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                    OpenMRS O3 Frontend (Browser)                  │
+│   @openmrs/esm-clinicdx-app  v2.0.0  (TypeScript / React / MFE) │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────────┐  │
+│  │   CDS    │  │  Scribe  │  │   OCR    │  │    Imaging     │  │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └───────┬────────┘  │
+└───────┼─────────────┼─────────────┼─────────────────┼───────────┘
+        │  HTTPS      │             │                 │
+        ▼             ▼             ▼                 ▼
+┌──────────────────────────────────────────────────────────────────┐
+│              Nginx Reverse Proxy  (:443 HTTPS)                    │
+│  /clinicdx-api/*  →  middleware:8080                             │
+│  /openmrs/*       →  openmrs:8080                                │
+└──────────────────────────┬───────────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────────┐
+│         FastAPI Middleware  (Python 3.11, port 8080)              │
+│                                                                   │
+│   cds_router.py       ─── Multi-turn ReAct CDS + SSE streaming  │
+│   scribe_router.py    ─── Audio → FHIR pipeline                  │
+│   manifest.py         ─── OpenMRS encounter → concept manifest   │
+│   fhir_builder.py     ─── FHIR R4 observation construction       │
+└───────────────────┬──────────────────────┬────────────────────── ┘
+                    │                      │
+          ┌─────────┘                      └─────────┐
+          ▼                                          ▼
+┌─────────────────────┐              ┌───────────────────────────┐
+│   KB Daemon v2      │              │  llama-server  (port 8180) │
+│   port 4276         │              │                            │
+│                     │              │  ┌──────────────────────┐  │
+│  WHO Guidelines     │              │  │  MedASR Encoder      │  │
+│  MSF Protocols      │◄─ queries ──│  │  (frozen, 105M)      │  │
+│  WikiMed Corpus     │              │  └──────────┬───────────┘  │
+│                     │              │             ▼              │
+│  BM25 + Semantic    │              │  ┌──────────────────────┐  │
+│  Hybrid Retrieval   │              │  │  AudioProjector v3   │  │
+│  (v2 index)         │              │  │  (11.8M, trained)    │  │
+└─────────────────────┘              │  └──────────┬───────────┘  │
+                                     │             ▼              │
+                                     │  ┌──────────────────────┐  │
+                                     │  │  ClinicDx V1 LLM     │  │
+                                     │  │  (4.3B, Q8 GGUF)     │  │
+                                     │  └──────────────────────┘  │
+                                     └───────────────────────────┘
+```
+
+### CDS Flow — Multi-Turn ReAct with KB Tool-Use
+
+```
+1.  Frontend sends patient case  →  POST /cds/generate_stream
+2.  Middleware builds Gemma chat prompt with encounter context
+3.  Model streams thinking block  →  emits <KB_QUERY>term</KB_QUERY>
+4.  Middleware queries KB daemon  →  injects <KB_RESULT>evidence</KB_RESULT>
+5.  Up to 4 retrieval turns until structured response is complete
+6.  SSE stream delivers 6-section markdown response with WHO citations
+```
+
+**CDS Response Schema:**
+1. **Alert Level** — Routine / Urgent / Emergency
+2. **Clinical Assessment** — Findings summary and reasoning
+3. **Differential Considerations** — Ranked diagnoses with rationale
+4. **Recommended Actions** — Investigations and management steps
+5. **Safety Alerts** — Red-flag signs, interactions, contraindications
+6. **Key Points** — Concise handover summary
+
+### Scribe Flow — Direct Audio to FHIR
+
+```
+1.  Doctor records voice note in browser  →  POST /scribe/process_audio
+2.  Middleware transcodes to 16kHz mono PCM-16 WAV (via ffmpeg)
+3.  WAV → POST /v1/audio/extract on llama-server
+4.  MedASR Conformer encodes audio  →  [T_enc, 512]
+5.  AudioProjector projects  →  [64, 2560]  (fixed token budget)
+6.  LLM decodes structured observations  →  "key: value" lines
+7.  Middleware maps keys to CIEL concept codes  →  FHIR R4 payloads
+8.  Doctor reviews and confirms  →  POST to OpenMRS FHIR API
+```
 
 ---
 
 ## Repository Layout
 
 ```
-clinicdx/
-├── openmrs-module/          # TypeScript/React ESM microfrontend
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── webpack.config.js
-│   ├── translations/
+ClinicDx/
+├── openmrs-module/              OpenMRS O3 ESM microfrontend (TypeScript/React)
 │   └── src/
-│       ├── index.ts         # Module entry + config schema
-│       ├── routes.json      # OpenMRS slot registrations
-│       ├── cds/             # CDS workspace + action button
-│       │   └── case-builder/  # OpenMRS API + CDS API layer
-│       ├── scribe/          # Voice Scribe workspace
-│       ├── imaging/         # Imaging analysis workspace
-│       └── ocr/             # OCR workspace
+│       ├── cds/                 CDS workspace and action button
+│       │   └── case-builder/    OpenMRS patient API + middleware API types
+│       ├── scribe/              Voice Scribe workspace
+│       ├── imaging/             Imaging analysis workspace
+│       └── ocr/                 OCR workspace
 │
 ├── services/
-│   ├── unified-model-server/  # Main inference server (port 8000)
-│   │   ├── serve_unified.py   # FastAPI app — CDS + Scribe endpoints
-│   │   └── modeling/
-│   │       ├── gemma3_audio.py  # Gemma3WithAudioModel + AudioProjector
-│   │       └── processor.py
+│   ├── middleware/              FastAPI middleware (canonical V1 source)
+│   │   ├── api.py               FastAPI app entry point
+│   │   ├── cds_router.py        Multi-turn CDS + SSE streaming
+│   │   ├── scribe_router.py     Audio → FHIR pipeline
+│   │   ├── manifest.py          Encounter → concept manifest (29 CIEL concepts)
+│   │   ├── fhir_builder.py      FHIR R4 resource construction
+│   │   └── ciel_mappings.json   CIEL concept → OpenMRS UUID map
 │   │
-│   ├── middleware/            # Request routing + FHIR building (port 8321)
-│   │   └── service/
-│   │       ├── api.py           # FastAPI app entry
-│   │       ├── cds_router.py    # Multi-turn KB tool-use CDS
-│   │       ├── scribe_router.py # Audio→FHIR Scribe pipeline
-│   │       ├── fhir_builder.py  # FHIR R4 resource construction
-│   │       ├── manifest.py      # OpenMRS encounter → concept manifest
-│   │       ├── concept_extractor.py
-│   │       ├── transcribe.py
-│   │       ├── audio_pipeline.py
-│   │       ├── projector.py
-│   │       └── ciel_mappings.json  # CIEL concept → UUID/code map
-│   │
-│   └── knowledge-base/        # Local KB HTTP daemon (port 4276)
-│       ├── kb/
-│       │   ├── retrieval_core.py  # KBRetriever (memvid, thread-safe)
-│       │   ├── daemon.py          # Stdlib ThreadingHTTPServer
-│       │   └── client.py          # HTTP client helpers
-│       └── tests/
+│   └── kb/                      Knowledge Base daemon (v2 index)
+│       └── kb/
+│           ├── daemon_v2.py     HTTP server (port 4276)
+│           └── retrieval_core_v2.py  BM25 + semantic hybrid retrieval
 │
 ├── training/
-│   ├── cds-lora/              # LoRA fine-tuning for CDS reasoning
-│   │   ├── train_cds_lora.py
-│   │   ├── config.yaml
-│   │   ├── data_loader.py
-│   │   ├── merge_lora.py
-│   │   ├── eval_medqa.py
-│   │   └── scripts/           # run_training.sh, deploy.sh, setup_env.sh
-│   │
-│   ├── scribe-projector/      # Audio projector training
-│   │   ├── train_projector.py
-│   │   ├── train_text_sft.py
-│   │   ├── data_loader.py
-│   │   ├── evaluate.py
-│   │   └── configs/
-│   │
-│   └── kb-tool-use-lora/      # KB-aware LoRA (2-query tool-use format)
-│       ├── train.py
-│       ├── config.yaml
-│       └── validate_kb_live.py
+│   ├── cds-lora/                CDS LoRA fine-tuning (Stage 1 + 2)
+│   ├── scribe-projector/        AudioProjector training (Stage 3)
+│   └── kb-tool-use-lora/        KB tool-use LoRA
 │
 └── dataset/
-    ├── cds/                   # CDS dataset preparation
-    │   └── build_sft_dataset.py
-    └── speech/                # Speech dataset pipeline
-        ├── generate_audio.py
-        ├── assemble_training.py
-        └── build_text_sft_data.py
+    ├── cds/                     CDS conversation dataset pipeline
+    └── speech/                  Audio clip generation and assembly
 ```
 
 ---
 
-## The Model
+## Quick Start (Docker Compose)
 
-ClinicDx uses a single fine-tuned model: **[`medgemma_cds_think_v1`](https://huggingface.co/ClinicDx1/ClinicDx)**
+### Requirements
 
-This model is derived from [Google's MedGemma](https://huggingface.co/google/medgemma-4b-it) through three training stages:
-
-```
-MedGemma 4B-IT (base)
-      ↓  Stage 1: SFT on CDS reasoning dataset (200k examples)
-MedGemma-SFT
-      ↓  Stage 2: LoRA + GRPO on KB tool-use format
-medgemma_cds_think_v1  ← production model (LoRA merged)
-      ↓  Stage 3: AudioProjector training (11.8M params, frozen base)
-medgemma_cds_think_v1 + projector_final.pt  ← full Scribe model
-```
-
-**Model weights:** Hosted on Hugging Face. This repository contains training and serving code only.
-
-### Model Registry
-
-- **Repository:** `https://huggingface.co/ClinicDx1/ClinicDx`
-- **Latest published revision:** `a8f17b3f3caf3f30319d2ef42a8caf9523304ddf`
-- **Deployment recommendation:** Pin to an explicit revision in production for reproducibility.
-
-```bash
-# Pull model artifacts to the expected server path
-hf download ClinicDx1/ClinicDx --repo-type model \
-  --local-dir /var/www/ClinicDx/model/medgemma_cds_think_v1
-```
-
-### Knowledge Base
-
-The model queries a local KB during inference (CDS mode). The KB contains two [memvid](https://github.com/Oaynerad/memvid) indexes:
-
-| File | Contents |
+| Requirement | Version |
 |---|---|
-| `who_knowledge.mv2` | WHO clinical guidelines, Africa-focused protocols |
-| `wikimed.mv2` | WikiMed medical reference corpus |
+| Docker Engine | ≥ 24 |
+| Docker Compose plugin | ≥ 2.20 |
+| NVIDIA Container Toolkit *(GPU mode)* | CUDA 12.x |
+| GPU VRAM *(GPU mode)* | ≥ 8 GB |
+| Disk space | ~20 GB (models + KB index) |
 
-Default location: `/var/www/kbToolUseLora/kb/` (override with `KB_INDEX_DIR` env var).
+### 1 — Configure
+
+```bash
+cp .env.example .env
+# Set HF_TOKEN if the HuggingFace repo requires authentication
+```
+
+### 2 — SSL Certificates (development)
+
+```bash
+mkdir -p certs
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout certs/server.key -out certs/server.crt -subj "/CN=localhost"
+```
+
+### 3 — Start the Stack
+
+**GPU (recommended):**
+```bash
+make up
+# or: docker compose --profile gpu up -d
+```
+
+**CPU only:**
+```bash
+make up-cpu
+# or: docker compose -f docker-compose.yml -f docker-compose.cpu.yml up -d
+```
+
+On first start, the model container automatically downloads the three GGUF files from [`ClinicDx1/ClinicDx`](https://huggingface.co/ClinicDx1/ClinicDx). Subsequent starts are instant.
+
+### 4 — Verify
+
+```bash
+make smoke
+```
+
+### 5 — Access
+
+| Service | URL |
+|---|---|
+| OpenMRS O3 | `https://localhost/openmrs` |
+| ClinicDx API health | `https://localhost/clinicdx-api/api/health` |
+| Model server health | `http://localhost:8180/health` |
 
 ---
 
-## Quick Start
+## Manual / Air-Gap Deployment
 
-### 1. Start the Knowledge Base Daemon
-
-```bash
-cd services/knowledge-base
-pip install -r requirements.txt
-export KB_INDEX_DIR=/path/to/kb/indexes
-python -m kb.daemon 4276
-```
-
-### 2. Start the Unified Model Server
+For deployments without internet access, pre-download all artifacts:
 
 ```bash
-cd services/unified-model-server
-pip install -r requirements.txt
-python serve_unified.py \
-  --model-dir /path/to/medgemma_cds_think_v1 \
-  --projector /path/to/projector_final.pt \
-  --port 8000
+# On a machine with internet access
+pip install huggingface_hub
+python - <<'EOF'
+from huggingface_hub import snapshot_download
+snapshot_download(
+    repo_id="ClinicDx1/ClinicDx",
+    allow_patterns=["*.gguf"],
+    local_dir="./artifacts/gguf"
+)
+EOF
+
+# Transfer artifacts to target machine and map to Docker volumes
+tar -czf clinicdx_artifacts.tar.gz artifacts/
 ```
-
-### 3. Start the Middleware
-
-```bash
-cd services/middleware
-pip install -r requirements.txt
-export MODEL_SERVER_URL=http://localhost:8000
-export KB_URL=http://localhost:4276
-export OPENMRS_URL=http://localhost:8080/openmrs
-export OPENMRS_USER=admin
-export OPENMRS_PASSWORD=Admin123
-uvicorn service.api:app --host 0.0.0.0 --port 8321
-```
-
-### 4. Build and Deploy the OpenMRS Module
-
-```bash
-cd openmrs-module
-npm install
-npm run build
-# Copy dist/ to your OpenMRS frontend deployment
-```
-
-Set `middlewareUrl` in OpenMRS config to point to your middleware (`http://localhost:8321`).
 
 ---
 
 ## API Reference
 
-### Unified Model Server (`port 8000`)
+### Middleware  (`/clinicdx-api`)
 
-| Method | Path | Description |
+| Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/health` | Health check |
-| `GET` | `/v1/models` | List models (OpenAI compat) |
-| `POST` | `/v1/completions` | Text generation for CDS (OpenAI compat) |
-| `POST` | `/v1/audio/extract` | Audio → structured observations |
-
-### Middleware (`port 8321`)
-
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/health` | Full health check |
-| `POST` | `/cds/generate` | Multi-turn CDS with KB tool-use |
+| `GET` | `/api/health` | Full stack health — model, KB, and middleware status |
+| `POST` | `/cds/generate` | Clinical decision support (blocking) |
 | `POST` | `/cds/generate_stream` | CDS with SSE token streaming |
-| `GET` | `/scribe/manifest?encounter_uuid=` | Build concept manifest |
-| `POST` | `/scribe/process` | Transcription → FHIR observations |
-| `POST` | `/scribe/process_audio` | Audio → FHIR (direct, no text step) |
+| `GET` | `/scribe/manifest?encounter_uuid=` | Build encounter concept manifest |
+| `POST` | `/scribe/process` | Transcription text → FHIR observations |
+| `POST` | `/scribe/process_audio` | Raw audio → FHIR observations (direct pipeline) |
 | `POST` | `/scribe/confirm` | POST confirmed observations to OpenMRS |
 
-### KB Daemon (`port 4276`)
+### Knowledge Base Daemon  (`port 4276`)
 
-| Method | Path | Description |
+| Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/health` | Health check |
+| `GET` | `/health` | Health check — returns index version |
+| `POST` | `/search` | Query KB: `{"query": "...", "top_k": 5}` |
 | `GET` | `/stats` | Index statistics |
-| `POST` | `/search` | Query KB (`{"query": "...", "k": 3}`) |
+
+### Model Server  (`port 8180`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Server health |
+| `POST` | `/v1/completions` | Text generation (OpenAI-compatible) |
+| `POST` | `/v1/audio/extract` | Audio WAV → structured observations (multipart/form-data) |
 
 ---
 
-## Environment Variables
+## Configuration
+
+All configuration is via environment variables (copy `.env.example` to `.env`):
 
 | Variable | Default | Description |
 |---|---|---|
-| `KB_INDEX_DIR` | `/var/www/kbToolUseLora/kb` | Path to `.mv2` KB index files |
-| `MODEL_SERVER_URL` | `http://10.128.0.4:8000` | Unified model server URL |
-| `KB_URL` | `http://10.128.0.4:4276` | KB daemon URL |
-| `MODEL_NAME` | `/var/www/ClinicDx/model/medgemma_cds_think_v1` | Model identifier |
-| `OPENMRS_URL` | `http://localhost:8080/openmrs` | OpenMRS base URL |
+| `HF_TOKEN` | *(empty)* | HuggingFace token for model download |
+| `HF_MODEL_REPO` | `ClinicDx1/ClinicDx` | HuggingFace model repository |
+| `N_GPU_LAYERS` | `999` | GPU offload layers (0 = CPU only) |
+| `MODEL_CTX` | `8192` | Context window size (tokens) |
+| `MODEL_PARALLEL` | `1` | Inference slots — **must remain 1** (audio pipeline requirement) |
+| `OPENMRS_URL` | `https://172.18.0.1/openmrs` | OpenMRS backend URL |
 | `OPENMRS_USER` | `admin` | OpenMRS credentials |
 | `OPENMRS_PASSWORD` | `Admin123` | OpenMRS credentials |
+| `LOG_LEVEL` | `INFO` | `DEBUG` / `INFO` / `WARN` / `ERROR` |
+
+> **Note:** `MODEL_PARALLEL` must be set to `1`. The audio extraction endpoint (`/v1/audio/extract`) performs blocking KV-cache operations that conflict with parallel slot inference.
+
+---
+
+## OpenMRS Frontend Configuration
+
+The frontend module reads `middlewareUrl` from the OpenMRS config system:
+
+```json
+{
+  "@openmrs/esm-clinicdx-app": {
+    "middlewareUrl": "/clinicdx-api"
+  }
+}
+```
+
+Configure via **System Administration → Advanced Settings** in the OpenMRS admin UI. For local development without Docker, set it to `http://localhost:8321`.
+
+---
+
+## Testing
+
+### Unit Tests (no running stack required)
+
+```bash
+# All unit tests
+make test-unit
+
+# Middleware
+pytest tests/unit/middleware/ -v
+
+# Knowledge Base
+pytest tests/unit/kb/ -v
+
+# Frontend (Jest)
+npx jest --config tests/unit/frontend/jest.config.js -v
+```
+
+### Integration Tests (requires running stack)
+
+```bash
+make up
+make test-int
+
+# Individual suites
+pytest tests/integration/test_kb_endpoint.py -v
+pytest tests/integration/test_model_health.py -v
+pytest tests/integration/test_middleware_cds.py -v
+pytest tests/integration/test_e2e_scribe.py -v
+```
+
+---
+
+## Logging
+
+Every service emits **newline-delimited JSON** on stdout:
+
+```json
+{"ts":"2026-03-13T14:00:00Z","level":"INFO","service":"middleware","trace_id":"abc-123","msg":"CDS request received","elapsed_ms":1842}
+```
+
+```bash
+# Follow all service logs
+make logs
+
+# Errors only — across all services
+docker compose logs | python3 -c "
+import sys, json
+for line in sys.stdin:
+    try:
+        d = json.loads(line.split(' ', 3)[-1])
+        if d.get('level') in ('ERROR', 'WARN'):
+            print(json.dumps(d, indent=2))
+    except: pass
+"
+```
 
 ---
 
 ## Training
 
-See [`training/`](training/) for all training code.
+Training code lives in [`training/`](training/). All three stages can be reproduced independently:
 
-| Folder | What it trains |
+| Stage | Directory | Script | What it trains |
+|---|---|---|---|
+| 1 — CDS SFT | `training/cds-lora/` | `train_cds_lora.py` | CDS reasoning LoRA on 27,592 clinical conversations |
+| 2 — KB Tool-Use | `training/kb-tool-use-lora/` | `train.py` | KB query format LoRA |
+| 3 — AudioProjector | `training/scribe-projector/` | `train_audio_projector.py` | MedASR → LLM projector on 50,000 audio clips |
+
+Dataset preparation pipelines are in [`dataset/`](dataset/).
+
+---
+
+## Supported Concepts (Scribe)
+
+The Scribe module supports 29 CIEL clinical concepts across 7 encounter types:
+
+**Vital Signs:** temperature, blood pressure (systolic/diastolic), pulse, SpO₂, respiratory rate, BMI, weight, height
+
+**Lab Results:** CD4 count, CD4 percent, fasting glucose, finger-stick glucose, post-prandial glucose, serum glucose
+
+**Clinical Observations:** duration of illness, Glasgow Coma Scale, visual analogue pain score, missed medication doses, urine output, fundal height, fetal heart rate, estimated gestational age
+
+**Obstetric / Pediatric:** pre-gestational weight, birth weight, weight gain since last visit, weight on admission, head circumference, MUAC
+
+---
+
+## Roadmap
+
+- [ ] Multi-language Scribe (Swahili, Amharic, Hausa, Yoruba)
+- [ ] Differential diagnosis confidence scores
+- [ ] Federated learning for multi-facility model improvement
+- [ ] Medication reconciliation and drug interaction alerts
+- [ ] Integration with OpenMRS Reporting Framework
+- [ ] Offline model update via USB/sneakernet
+
+---
+
+## Contributing
+
+Contributions are welcome. Please open an issue before submitting a pull request for significant changes.
+
+```bash
+# Clone and set up development environment
+git clone https://github.com/brookyale0512/ClinicDx-.git
+cd ClinicDx-
+
+# Run unit tests
+make test-unit
+```
+
+Areas where contributions are especially needed:
+- Clinical validation studies
+- Additional CIEL concept mappings
+- Regional language support for Scribe
+- Documentation translations
+
+---
+
+## Built With
+
+| Component | Project |
 |---|---|
-| `training/cds-lora/` | CDS reasoning LoRA on MedGemma (`train_cds_lora.py`) |
-| `training/scribe-projector/` | AudioProjector mapping MedASR → MedGemma space |
-| `training/kb-tool-use-lora/` | KB tool-use format LoRA (2-query ReAct style) |
-
-Dataset preparation scripts are in [`dataset/`](dataset/).
+| EMR Platform | [OpenMRS O3](https://openmrs.org/) |
+| Base LLM | [Google MedGemma 4B-IT](https://huggingface.co/google/medgemma-4b-it) |
+| Inference Runtime | [llama.cpp](https://github.com/ggerganov/llama.cpp) |
+| Clinical Terminology | [CIEL](https://www.cielterminology.org/) |
+| Knowledge Base | [memvid](https://github.com/Oaynerad/memvid) |
+| Audio Encoder | MedASR (Conformer, LASR architecture) |
+| FHIR Standard | [HL7 FHIR R4](https://hl7.org/fhir/R4/) |
 
 ---
 
 ## License
 
-MPL-2.0 — see [LICENSE](LICENSE).
+This project is licensed under the **Mozilla Public License 2.0** — see [LICENSE](LICENSE) for details.
 
-This module is built on top of [OpenMRS O3](https://openmrs.org/), [MedGemma](https://huggingface.co/google/medgemma-4b-it) (Google), and the [CIEL Clinical Terminology](https://www.cielterminology.org/).
+Model weights are subject to the [Gemma Terms of Use](https://ai.google.dev/gemma/terms).
+
+---
+
+<div align="center">
+
+**[clinicdx.org](https://clinicdx.org)** · **[HuggingFace](https://huggingface.co/ClinicDx1/ClinicDx)** · **[GitHub](https://github.com/brookyale0512/ClinicDx-)** · **[Issues](https://github.com/brookyale0512/ClinicDx-/issues)**
+
+*Built for clinicians in under-resourced settings. Every observation captured, every diagnosis supported.*
+
+</div>
