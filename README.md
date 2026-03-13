@@ -66,18 +66,15 @@ ClinicDx is powered by a single fine-tuned multimodal model:
 ```
 Google MedGemma 4B-IT  (base)
        │
-       ▼  Stage 1 — CDS SFT
+       ▼  Stage 1 — CDS LoRA Fine-Tuning
        │  LoRA (r=64, α=128) on 27,592 quality-filtered clinical conversations
+       │  Single training run with anteoc reasoning and KB tool-use integrated
        │  Input masking: only model output turns trained (64% context masked)
        │  Best checkpoint: step 4,000  |  eval loss 0.4758  |  accuracy 86.25%
        │
-       ▼  Stage 2 — KB Tool-Use LoRA
-       │  Trained on multi-turn ReAct format with KB retrieval traces
-       │  Teaches the model when and how to query the knowledge base
+       ▼  Merge LoRA  →  medgemma_cds_think_v1  (production CDS model)
        │
-       ▼  Merge LoRA adapters  →  medgemma_cds_think_v1  (production CDS model)
-       │
-       ▼  Stage 3 — AudioProjector Training  (base model frozen)
+       ▼  Stage 2 — AudioProjector Training  (base model frozen)
           2-layer MLP + LayerNorm projector: MedASR (512-dim) → LLM space (2560-dim)
           50,000 synthetic clinical audio clips  |  10 epochs
           Best checkpoint: step 40,000  |  val LM 0.1042  |  key accuracy 84%
@@ -197,9 +194,8 @@ ClinicDx/
 │           └── retrieval_core_v2.py  BM25 + semantic hybrid retrieval
 │
 ├── training/
-│   ├── cds-lora/                CDS LoRA fine-tuning (Stage 1 + 2)
-│   ├── scribe-projector/        AudioProjector training (Stage 3)
-│   └── kb-tool-use-lora/        KB tool-use LoRA
+│   ├── cds-lora/                CDS LoRA fine-tuning (Stage 1)
+│   └── scribe-projector/        AudioProjector training (Stage 2)
 │
 └── dataset/
     ├── cds/                     CDS conversation dataset pipeline
@@ -422,9 +418,8 @@ Training code lives in [`training/`](training/). All three stages can be reprodu
 
 | Stage | Directory | Script | What it trains |
 |---|---|---|---|
-| 1 — CDS SFT | `training/cds-lora/` | `train_cds_lora.py` | CDS reasoning LoRA on 27,592 clinical conversations |
-| 2 — KB Tool-Use | `training/kb-tool-use-lora/` | `train.py` | KB query format LoRA |
-| 3 — AudioProjector | `training/scribe-projector/` | `train_audio_projector.py` | MedASR → LLM projector on 50,000 audio clips |
+| 1 — CDS LoRA | `training/cds-lora/` | `train_cds_lora.py` | Single-stage LoRA on 27,592 clinical conversations with reasoning and KB tool-use |
+| 2 — AudioProjector | `training/scribe-projector/` | `train_audio_projector.py` | MedASR → LLM projector on 50,000 audio clips |
 
 Dataset preparation pipelines are in [`dataset/`](dataset/).
 
