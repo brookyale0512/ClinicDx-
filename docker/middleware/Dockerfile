@@ -30,9 +30,9 @@ COPY services/middleware/ /app/service/
 # The entrypoint runs the package as a module
 ENV MODEL_SERVER_URL=http://model:8180 \
     KB_URL=http://kb:4276 \
-    OPENMRS_URL=http://openmrs:8080/openmrs \
-    OPENMRS_USER=admin \
-    OPENMRS_PASSWORD=Admin123 \
+    OPENMRS_URL="" \
+    OPENMRS_USER="" \
+    OPENMRS_PASSWORD="" \
     MIDDLEWARE_PORT=8080 \
     LOG_LEVEL=INFO \
     PYTHONUNBUFFERED=1 \
