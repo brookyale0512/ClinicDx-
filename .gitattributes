@@ -1,1 +1,1 @@
-kb/who_knowledge_vec.mv2 filter=lfs diff=lfs merge=lfs -text
+# MV2 knowledge base indexes are distributed via HuggingFace, not Git LFS.

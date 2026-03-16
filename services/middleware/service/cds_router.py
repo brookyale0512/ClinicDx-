@@ -32,7 +32,7 @@ KB_URL = os.environ.get("KB_URL", "http://127.0.0.1:4276")
 MODEL_NAME = os.environ.get("MODEL_NAME", "clinicdx-v1-q8.gguf")
 
 MAX_TURNS = 5
-MAX_KB_QUERIES = 3
+MAX_KB_QUERIES = 5
 KB_THRESHOLD = 0.0
 
 # ── System prompt rules injected at inference time ───────────────────────────
@@ -263,6 +263,31 @@ async def generate_cds(request: CDSRequest):
         else:
             break
 
+    # ── Safety net: force assessment if the model never wrote one ──────
+    has_any_assessment = bool(re.search(
+        r"## (?:Alert Level|Clinical Assessment|Recommended)", all_text))
+
+    if not has_any_assessment:
+        log.warning("Non-streaming: no clinical assessment after %d turns — forcing", turn + 1)
+        force_msg = (
+            "No relevant KB evidence was found for this case. "
+            "Using your clinical training knowledge, write the complete "
+            "clinical assessment now with all 6 sections: "
+            "## Alert Level, ## Clinical Assessment, ## Differential Considerations, "
+            "## Recommended Actions, ## Safety Alerts, ## Key Points. "
+            "Base your recommendations on standard clinical practice."
+        )
+        conversation += generated + "<end_of_turn>\n"
+        conversation += (
+            f"<start_of_turn>user\n{force_msg}"
+            f"<end_of_turn>\n<start_of_turn>model\n"
+        )
+        try:
+            forced = _generate(conversation, max_tokens=6144)
+            all_text += forced
+        except Exception as e:
+            log.error("Forced generation failed: %s", e)
+
     cleaned = re.sub(r"<think>[\s\S]*?</think>", "", all_text, flags=re.IGNORECASE)
     cleaned = re.sub(r"<KB_QUERY>[\s\S]*?</KB_QUERY>", "", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"<think>[\s\S]*$", "", cleaned, flags=re.IGNORECASE)
@@ -372,6 +397,7 @@ async def generate_cds_stream(request: CDSRequest):
 
         kb_queries = []
         used_q = set()
+        all_generated_text = []  # tracks ALL generated text across turns
 
         # Track approximate token count to stay inside context window.
         # Rough estimate: 1 token ≈ 3 chars. Model ctx = 8192. Keep 2048 for output.
@@ -414,6 +440,7 @@ async def generate_cds_stream(request: CDSRequest):
                 return
 
             generated = "".join(generated_parts)
+            all_generated_text.append(generated)
 
             kb_matches = re.findall(r"<KB_QUERY>(.*?)</KB_QUERY>", generated, re.DOTALL | re.IGNORECASE)
             has_answer = bool(re.search(r"## Clinical Assessment", generated))
@@ -488,6 +515,63 @@ async def generate_cds_stream(request: CDSRequest):
                     log.warning("Conversation trimmed to fit context window")
             else:
                 break
+
+        # ── Safety net: force assessment if the model never wrote one ──────
+        # When KB coverage is poor the model can exhaust all turns generating
+        # only <think> blocks and <KB_QUERY> tags with no actual clinical
+        # content. The frontend strips those tags and the user sees a blank.
+        full_output = "".join(all_generated_text)
+        has_any_assessment = bool(re.search(
+            r"## (?:Alert Level|Clinical Assessment|Recommended)", full_output))
+
+        if not has_any_assessment:
+            log.warning("No clinical assessment after %d turns — forcing final generation", turn + 1)
+            force_msg = (
+                "No relevant KB evidence was found for this case. "
+                "Using your clinical training knowledge, write the complete "
+                "clinical assessment now with all 6 sections: "
+                "## Alert Level, ## Clinical Assessment, ## Differential Considerations, "
+                "## Recommended Actions, ## Safety Alerts, ## Key Points. "
+                "Base your recommendations on standard clinical practice."
+            )
+            conversation += generated + "<end_of_turn>\n"
+            conversation += (
+                f"<start_of_turn>user\n{force_msg}"
+                f"<end_of_turn>\n<start_of_turn>model\n"
+            )
+
+            if len(conversation) > MAX_INPUT_CHARS:
+                keep = int(MAX_INPUT_CHARS * 0.6)
+                system_end = conversation.find("<start_of_turn>user\n") + len("<start_of_turn>user\n")
+                system_part = conversation[:system_end]
+                tail = conversation[-keep:]
+                conversation = system_part + "[...context trimmed...]\n" + tail
+
+            yield _sse_event({"type": "turn_start", "turn": turn + 2})
+
+            queue_final: asyncio.Queue = asyncio.Queue()
+            final_parts: list[str] = []
+
+            def _run_final() -> None:
+                try:
+                    for tok in _stream_generate(conversation, max_tokens=6144):
+                        loop.call_soon_threadsafe(queue_final.put_nowait, ("token", tok))
+                    loop.call_soon_threadsafe(queue_final.put_nowait, ("done", None))
+                except Exception as exc:
+                    loop.call_soon_threadsafe(queue_final.put_nowait, ("error", str(exc)))
+
+            _thread_pool.submit(_run_final)
+
+            while True:
+                kind, value = await queue_final.get()
+                if kind == "token":
+                    final_parts.append(value)
+                    yield _sse_event({"type": "token", "text": value})
+                elif kind == "done":
+                    break
+                else:
+                    yield _sse_event({"type": "error", "message": value})
+                    break
 
         yield _sse_event({
             "type": "done",

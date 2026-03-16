@@ -52,22 +52,51 @@ SOURCE_WHO = "WHO Guidelines"
 #  1.0 for recommendation, etc.  Superseded chunks have rp=0.0 and are
 #  hard-filtered before this stage.)
 _V2_CONTENT_BOOST: Dict[str, float] = {
-    "recommendation": 1.50,   # primary actionable CDS output
-    "implementation": 1.30,   # next steps, dosing context
-    "etd":            0.60,   # evidence summaries — context, not CDS
-    "methods_pico":   0.45,   # PICO framing — methodology
-    "background":     0.20,   # introductory prose — heavy demote
-    "research_gap":   0.15,   # future research — rarely relevant at PoC
-    "annex":          0.25,   # supplementary tables — low clinical priority
-    "scope":          0.25,   # scope sections — contextual only
+    # ── Actionable clinical content (boost) ──────────────────────────────
+    "recommendation":     1.50,
+    "treatment_protocol": 1.50,
+    "dosage":             1.50,
+    "obstetric_protocol": 1.50,
+    "tb_regimen":         1.50,
+    "implementation":     1.30,
+    "drug_monograph":     1.30,
+    "referral_criteria":  1.30,
+    "diagnostic":         1.15,
+    "prevention":         1.30,
+    # ── Neutral clinical content (no boost/demote) ───────────────────────
+    "general_clinical":   1.00,
+    "table":              1.00,
+    "patient_assessment": 1.00,
+    "monitoring":         1.10,
+    "counselling":        1.00,
+    "executive_summary":  1.00,
+    "disease_entry":      1.00,
+    "clinical_features":  1.00,
+    # ── Context / evidence (demote) ──────────────────────────────────────
+    "evidence_summary":   0.60,
+    "etd":                0.60,
+    "remarks":            0.60,
+    "rationale":          0.50,
+    "methods_pico":       0.45,
+    "methodology":        0.45,
+    "epidemiology":       0.40,
+    "scope":              0.25,
+    "annex":              0.25,
+    "background":         0.20,
+    "research_gap":       0.15,
 }
-# Fallback for unknown future types: 1.0 (neutral, no boost or demote)
 _V2_CONTENT_BOOST_DEFAULT = 1.0
 
 # ── Action-priority and context-demote type sets ──────────────────────────
-_ACTION_PRIORITY_TYPES = {"recommendation", "implementation"}
+_ACTION_PRIORITY_TYPES = {
+    "recommendation", "implementation",
+    "treatment_protocol", "dosage", "drug_monograph",
+    "obstetric_protocol", "tb_regimen",
+    "referral_criteria", "diagnostic", "prevention",
+}
 _ACTION_CONTEXT_DEMOTE = {
     "etd", "methods_pico", "background", "research_gap", "annex", "scope",
+    "evidence_summary", "methodology", "epidemiology", "rationale", "remarks",
 }
 _ACTION_CONTEXT_DEMOTE_FACTOR = 0.75
 _ACTION_BONUS                 = 1.15   # 15% boost for action-priority types
@@ -297,11 +326,15 @@ _RESCUE_RECOMMEND_RE = re.compile(
 # ── Task-slot: preferred content types per task ───────────────────────────
 # v2 types only — no v1 legacy strings.
 _TASK_PREFERRED_TYPES: Dict[str, set] = {
-    "dose":       {"recommendation", "implementation"},
-    "diagnosis":  {"recommendation"},
-    "first_line": {"recommendation", "implementation"},
-    "referral":   {"recommendation", "implementation"},
-    "prevention": {"recommendation"},
+    "dose":       {"recommendation", "implementation", "dosage",
+                   "treatment_protocol", "drug_monograph", "tb_regimen",
+                   "obstetric_protocol"},
+    "diagnosis":  {"recommendation", "diagnostic", "clinical_features",
+                   "patient_assessment"},
+    "first_line": {"recommendation", "implementation", "treatment_protocol",
+                   "drug_monograph", "tb_regimen"},
+    "referral":   {"recommendation", "implementation", "referral_criteria"},
+    "prevention": {"recommendation", "prevention", "counselling"},
 }
 
 # ── Source diversity cap ──────────────────────────────────────────────────
@@ -1095,9 +1128,13 @@ def _intent_rerank(
         boost         = 0.0
         matched_slots = 0
 
-        # v2: annex content_type → hard demote (no title regex needed)
+        # v2: hard demote for non-clinical supporting content
         if ct == "annex":
             penalty *= 0.25
+        elif ct == "research_gap":
+            penalty *= 0.15
+        elif ct in {"scope", "executive_summary"}:
+            penalty *= 0.35
 
         # ── Condition slot ────────────────────────────────────────────────
         if condition and cond_c_re:
@@ -1110,6 +1147,8 @@ def _intent_rerank(
             elif chunk_on_target:
                 boost += 0.25
                 matched_slots += 1
+            else:
+                penalty *= 0.75
 
         # Condition-specific hard overrides
         if condition == "snakebite" and re.search(r'\bscorpion\b', combined, re.I):
@@ -1131,9 +1170,12 @@ def _intent_rerank(
                 matched_slots -= 1
 
         # v2: demote non-actionable chunks with weak on-condition signal
-        # (replaces _GENERIC_SECTION_TITLE_RE which was v1-specific)
-        if condition and ct in {"background", "methods_pico"} and not chunk_on_target:
+        if condition and ct in {"background", "methods_pico", "methodology",
+                                "epidemiology"} and not chunk_on_target:
             penalty *= 0.45
+        elif condition and ct in {"evidence_summary", "etd", "rationale",
+                                  "remarks"} and not chunk_on_target:
+            penalty *= 0.55
 
         if (condition and chunk_on_target
                 and active_coherence
