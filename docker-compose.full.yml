@@ -1,0 +1,56 @@
+# =============================================================================
+# ClinicDx — Full Stack (Engine + Nginx + OpenMRS integration)
+# =============================================================================
+# Extends the base engine with:
+#   - nginx reverse proxy (SSL termination, /clinicdx-api/ and /openmrs/ proxy)
+#   - OpenMRS environment variables for scribe manifest/confirm endpoints
+#
+# Usage:
+#   GPU:  docker compose -f docker-compose.yml -f docker-compose.full.yml --profile gpu up -d
+#   CPU:  docker compose -f docker-compose.yml -f docker-compose.full.yml --profile cpu up -d
+#
+# Requires:
+#   - SSL certificates in ./certs/ (or set SSL_CERT_PATH / SSL_KEY_PATH)
+#   - OpenMRS running and accessible at OPENMRS_URL
+# =============================================================================
+
+services:
+
+  # ── Override middleware to add OpenMRS config ────────────────────────────────
+  middleware:
+    environment:
+      OPENMRS_URL: "${OPENMRS_URL:-https://172.18.0.1/openmrs}"
+      OPENMRS_USER: "${OPENMRS_USER:-admin}"
+      OPENMRS_PASSWORD: "${OPENMRS_PASSWORD:-Admin123}"
+    ports: !override
+      - "${ENGINE_PORT:-8080}:8080"
+
+  # ── nginx reverse proxy ─────────────────────────────────────────────────────
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    image: ghcr.io/brookyale0512/clinicdx-nginx:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - "${SSL_CERT_PATH:-./certs/server.crt}:/etc/nginx/certs/server.crt:ro"
+      - "${SSL_KEY_PATH:-./certs/server.key}:/etc/nginx/certs/server.key:ro"
+    depends_on:
+      middleware:
+        condition: service_healthy
+    networks:
+      - engine-internal
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "https://localhost/clinicdx-api/api/health"]
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+      retries: 3

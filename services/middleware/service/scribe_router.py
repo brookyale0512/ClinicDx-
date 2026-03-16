@@ -27,9 +27,21 @@ from .manifest import get_builder
 
 logger = logging.getLogger(__name__)
 
-OPENMRS_BASE = os.environ.get("OPENMRS_URL", "http://localhost:8080/openmrs")
+OPENMRS_BASE = os.environ.get("OPENMRS_URL", "")
 OPENMRS_USER = os.environ.get("OPENMRS_USER", "admin")
 OPENMRS_PASS = os.environ.get("OPENMRS_PASSWORD", "Admin123")
+
+
+def _require_openmrs() -> None:
+    """Raise 501 if OPENMRS_URL is not configured (engine-only mode)."""
+    if not OPENMRS_BASE:
+        raise HTTPException(
+            status_code=501,
+            detail=(
+                "This endpoint requires OPENMRS_URL to be configured. "
+                "Set the OPENMRS_URL environment variable to your OpenMRS instance."
+            ),
+        )
 
 router = APIRouter(prefix="/scribe", tags=["Voice Scribe"])
 
@@ -202,7 +214,9 @@ async def get_manifest(encounter_uuid: str):
     """Build and return the concept manifest for an encounter.
 
     Called by the ESM workspace when it opens, before recording starts.
+    Requires OPENMRS_URL to be configured.
     """
+    _require_openmrs()
     builder = get_builder()
     try:
         result = await builder.build_manifest(encounter_uuid)
@@ -662,7 +676,8 @@ async def process_audio(
 
 @router.post("/confirm", response_model=ConfirmResponse)
 async def confirm_items(req: ConfirmRequest):
-    """POST confirmed FHIR payloads to OpenMRS."""
+    """POST confirmed FHIR payloads to OpenMRS. Requires OPENMRS_URL."""
+    _require_openmrs()
     import json as _json
 
     logger.info("[confirm] encounter=%s patient=%s items_count=%d",

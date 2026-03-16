@@ -23,11 +23,11 @@ RUN pip install --no-cache-dir huggingface_hub[cli]
 
 # ── Application dependencies ──────────────────────────────────────────────────
 WORKDIR /app
-COPY services/kb/requirements.txt /app/requirements.txt
+COPY services/knowledge-base/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ── Application source ────────────────────────────────────────────────────────
-COPY services/kb/ /app/
+COPY services/knowledge-base/ /app/
 
 # ── Entrypoint ────────────────────────────────────────────────────────────────
 COPY docker/kb/entrypoint.sh /entrypoint.sh

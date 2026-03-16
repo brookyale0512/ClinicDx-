@@ -1,17 +1,25 @@
 # =============================================================================
-# ClinicDx V1 — Docker Compose (GPU profile, default)
+# ClinicDx — CDS Engine (Component 1)
 # =============================================================================
+# The standalone AI engine: model inference + knowledge base + CDS middleware.
+# Works with any EMR or as a standalone API. No OpenMRS dependency.
+#
 # Usage:
-#   GPU:  make up   (docker compose --profile gpu up -d)
-#   CPU:  make up-cpu
+#   GPU:  docker compose --profile gpu up -d
+#   CPU:  docker compose up -d
 #
-# Startup order (health-gated): kb → model → middleware → nginx
+# On first start, all artifacts (~6.6 GB) auto-download from HuggingFace.
+# Subsequent starts are instant.
 #
-# GGUFs and KB index are bind-mounted from the existing host paths so
-# first-start is instant — no re-download needed.
+# API:
+#   POST /cds/generate_stream   — SSE streaming clinical decision support
+#   POST /cds/generate          — blocking CDS
+#   POST /scribe/process_audio  — audio → structured observations
+#   POST /scribe/process        — text → structured observations
+#   GET  /api/health            — engine health
 # =============================================================================
 
-name: clinicdx-v1
+name: clinicdx-engine
 
 x-logging: &default-logging
   driver: json-file
@@ -26,7 +34,7 @@ services:
     build:
       context: .
       dockerfile: docker/kb/Dockerfile
-    image: clinicdx-v1/kb:latest
+    image: ghcr.io/brookyale0512/clinicdx-kb:latest
     restart: unless-stopped
     logging:
       driver: json-file
@@ -34,12 +42,8 @@ services:
         max-size: "200m"
         max-file: "10"
     volumes:
-      # Source index (read-only) — entrypoint copies to writable /kb_work
-      - /var/www/kbToolUseLora/kb:/kb_data:ro
-      # Writable working copy for memvid_sdk (persisted across restarts)
-      - kb_work:/kb_work
-      # EmbedGemma 300M weights — bind-mounted from host HF cache (read-only)
-      - /home/brook_avionuas/.cache/huggingface:/hf_cache:ro
+      - kb_data:/kb_data
+      - hf_cache:/hf_cache
     environment:
       KB_PORT: "4276"
       KB_SEARCH_MODE: "${KB_SEARCH_MODE:-rrf}"
@@ -48,31 +52,30 @@ services:
       KB_THRESHOLD: "0.0"
       KB_DATA_DIR: "/kb_data"
       KB_INDEX_PATH: "/kb_data/who_knowledge_vec_v2.mv2"
-      EMBED_MODEL_PATH: "/hf_cache/hub/models--google--embeddinggemma-300m/snapshots/57c266a740f537b4dc058e1b0cda161fd15afa75"
+      EMBED_MODEL_PATH: "/hf_cache/embeddinggemma-300m"
+      HF_KB_REPO: "${HF_KB_REPO:-ClinicDx1/ClinicDx}"
+      HF_TOKEN: "${HF_TOKEN:-}"
       LOG_LEVEL: "${LOG_LEVEL:-INFO}"
     networks:
-      - clinicdx-internal
+      - engine-internal
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:4276/health"]
       interval: 15s
       timeout: 5s
-      start_period: 60s
+      start_period: 120s
       retries: 5
 
   # ── Model Server (llama-server, GPU) ────────────────────────────────────────
-  model:
+  model-gpu:
     build:
       context: .
       dockerfile: docker/model/Dockerfile.gpu
-    image: clinicdx-v1/model-gpu:latest
+    image: ghcr.io/brookyale0512/clinicdx-model-gpu:latest
     profiles: ["gpu"]
     restart: unless-stopped
     logging: *default-logging
-    ports:
-      - "8180:8180"
     volumes:
-      # Bind-mount existing GGUFs — no re-download, instant start
-      - /var/www/unified_llama/gguf:/gguf_data:ro
+      - model_data:/gguf_data
     environment:
       MODEL_PORT: "8180"
       N_GPU_LAYERS: "${N_GPU_LAYERS:-999}"
@@ -91,37 +94,70 @@ services:
               count: 1
               capabilities: [gpu]
     networks:
-      - clinicdx-internal
+      engine-internal:
+        aliases:
+          - model
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8180/health"]
       interval: 20s
       timeout: 10s
-      start_period: 60s
+      start_period: 120s
       retries: 5
 
-  # ── FastAPI Middleware ───────────────────────────────────────────────────────
+  # ── Model Server (llama-server, CPU fallback) ───────────────────────────────
+  model-cpu:
+    build:
+      context: .
+      dockerfile: docker/model/Dockerfile.gpu
+    image: ghcr.io/brookyale0512/clinicdx-model-gpu:latest
+    profiles: ["cpu"]
+    restart: unless-stopped
+    logging: *default-logging
+    volumes:
+      - model_data:/gguf_data
+    environment:
+      MODEL_PORT: "8180"
+      N_GPU_LAYERS: "0"
+      MODEL_CTX: "${MODEL_CTX:-8192}"
+      MODEL_PARALLEL: "1"
+      MODEL_THREADS: "${MODEL_THREADS:-8}"
+      GGUF_DIR: "/gguf_data"
+      HF_MODEL_REPO: "${HF_MODEL_REPO:-ClinicDx1/ClinicDx}"
+      HF_TOKEN: "${HF_TOKEN:-}"
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+    networks:
+      engine-internal:
+        aliases:
+          - model
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8180/health"]
+      interval: 20s
+      timeout: 10s
+      start_period: 120s
+      retries: 5
+
+  # ── FastAPI Middleware (CDS orchestration + core Scribe) ────────────────────
   middleware:
     build:
       context: .
       dockerfile: docker/middleware/Dockerfile
-    image: clinicdx-v1/middleware:latest
+    image: ghcr.io/brookyale0512/clinicdx-middleware:latest
     restart: unless-stopped
     logging: *default-logging
+    ports:
+      - "${ENGINE_PORT:-8321}:8080"
     environment:
       MODEL_SERVER_URL: "http://model:8180"
       KB_URL: "http://kb:4276"
-      OPENMRS_URL: "${OPENMRS_URL:-https://172.18.0.1/openmrs}"
-      OPENMRS_USER: "${OPENMRS_USER:-admin}"
-      OPENMRS_PASSWORD: "${OPENMRS_PASSWORD:-Admin123}"
       MIDDLEWARE_PORT: "8080"
       LOG_LEVEL: "${LOG_LEVEL:-INFO}"
     depends_on:
       kb:
         condition: service_healthy
-      model:
-        condition: service_healthy
     networks:
-      - clinicdx-internal
+      engine-internal:
+        aliases:
+          - middleware
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8080/api/health"]
       interval: 15s
@@ -129,36 +165,14 @@ services:
       start_period: 30s
       retries: 5
 
-  # ── nginx reverse proxy ──────────────────────────────────────────────────────
-  nginx:
-    build:
-      context: .
-      dockerfile: docker/nginx/Dockerfile
-    image: clinicdx-v1/nginx:latest
-    restart: unless-stopped
-    logging: *default-logging
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "${SSL_CERT_PATH:-./certs/server.crt}:/etc/nginx/certs/server.crt:ro"
-      - "${SSL_KEY_PATH:-./certs/server.key}:/etc/nginx/certs/server.key:ro"
-    depends_on:
-      middleware:
-        condition: service_healthy
-    networks:
-      - clinicdx-internal
-    healthcheck:
-      test: ["CMD", "curl", "-sfk", "https://localhost/clinicdx-api/api/health"]
-      interval: 15s
-      timeout: 5s
-      start_period: 15s
-      retries: 3
-
 volumes:
-  kb_work:
+  kb_data:
+    driver: local
+  model_data:
+    driver: local
+  hf_cache:
     driver: local
 
 networks:
-  clinicdx-internal:
+  engine-internal:
     driver: bridge

@@ -1,50 +1,68 @@
 # =============================================================================
-# ClinicDx V1 — Makefile
+# ClinicDx — Makefile
 # =============================================================================
-# Usage:
-#   make up          Start full stack (GPU)
-#   make up-cpu      Start full stack (CPU only)
-#   make down        Stop all containers
-#   make logs        Follow logs from all containers
-#   make test        Run unit tests then integration tests
-#   make test-unit   Run unit tests only (no Docker required)
-#   make test-int    Run integration tests only (requires running stack)
-#   make smoke       Run smoke test against the running stack
-#   make backup      Snapshot the live /var/www/ClinicDx deployment
-#   make prefetch    Pre-download all artifacts into Docker volumes
+# Engine-only (any EMR):
+#   make up          GPU mode
+#   make up-cpu      CPU mode
+#
+# Full stack (with nginx + OpenMRS proxy):
+#   make up-full     GPU mode + nginx
+#   make up-full-cpu CPU mode + nginx
 # =============================================================================
 
-.PHONY: up up-cpu down restart logs ps \
-        test test-unit test-int smoke \
-        backup prefetch lint help
+COMPOSE_ENGINE = docker compose
+COMPOSE_FULL   = docker compose -f docker-compose.yml -f docker-compose.full.yml
 
-# ── Stack lifecycle ───────────────────────────────────────────────────────────
+.PHONY: up up-cpu up-full up-full-cpu down restart \
+        logs ps test test-unit test-int smoke lint help
+
+# ── Engine-only (Component 1) ────────────────────────────────────────────────
 
 up:
-	docker compose --profile gpu up -d
-	@echo "Stack started (GPU). Run 'make logs' to follow output."
+	$(COMPOSE_ENGINE) --profile gpu up -d
+	@echo ""
+	@echo "ClinicDx Engine started (GPU)."
+	@echo "  API: http://localhost:$${ENGINE_PORT:-8321}"
+	@echo "  Health: http://localhost:$${ENGINE_PORT:-8321}/api/health"
+	@echo ""
+	@echo "On first start, ~6.6 GB of artifacts will download from HuggingFace."
 
 up-cpu:
-	docker compose -f docker-compose.yml -f docker-compose.cpu.yml up -d
-	@echo "Stack started (CPU). Run 'make logs' to follow output."
+	$(COMPOSE_ENGINE) --profile cpu up -d
+	@echo ""
+	@echo "ClinicDx Engine started (CPU)."
+	@echo "  API: http://localhost:$${ENGINE_PORT:-8321}"
+
+# ── Full stack (Component 1 + nginx) ─────────────────────────────────────────
+
+up-full:
+	$(COMPOSE_FULL) --profile gpu up -d
+	@echo ""
+	@echo "ClinicDx Full Stack started (GPU)."
+	@echo "  HTTPS: https://localhost"
+	@echo "  API:   https://localhost/clinicdx-api/api/health"
+
+up-full-cpu:
+	$(COMPOSE_FULL) --profile cpu up -d
+	@echo ""
+	@echo "ClinicDx Full Stack started (CPU)."
+
+# ── Lifecycle ─────────────────────────────────────────────────────────────────
 
 down:
-	docker compose down
+	$(COMPOSE_ENGINE) --profile gpu --profile cpu down
 
-restart:
-	docker compose down
-	docker compose --profile gpu up -d
+restart: down up
 
 logs:
-	docker compose logs -f --tail=100
+	$(COMPOSE_ENGINE) --profile gpu --profile cpu logs -f --tail=100
 
 ps:
-	docker compose ps
+	$(COMPOSE_ENGINE) --profile gpu --profile cpu ps
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 
 test: test-unit test-int
-	@echo "All tests passed."
 
 test-unit:
 	@echo "--- Running unit tests ---"
@@ -57,14 +75,6 @@ test-int:
 smoke:
 	@bash scripts/smoke_test.sh
 
-# ── Maintenance ───────────────────────────────────────────────────────────────
-
-backup:
-	@bash scripts/backup.sh
-
-prefetch:
-	@bash scripts/download_artifacts.sh
-
 # ── Code quality ──────────────────────────────────────────────────────────────
 
 lint:
@@ -74,17 +84,25 @@ lint:
 # ── Help ──────────────────────────────────────────────────────────────────────
 
 help:
-	@echo "ClinicDx V1 — available targets:"
-	@echo "  up          Start stack (GPU profile)"
-	@echo "  up-cpu      Start stack (CPU profile, same Q8 model)"
-	@echo "  down        Stop all containers"
-	@echo "  restart     down + up"
-	@echo "  logs        Follow all container logs"
-	@echo "  ps          Show container status"
-	@echo "  test        unit + integration tests"
-	@echo "  test-unit   unit tests only (no Docker required)"
-	@echo "  test-int    integration tests only (stack must be running)"
-	@echo "  smoke       End-to-end smoke test"
-	@echo "  backup      Hard-link snapshot of live /var/www/ClinicDx"
-	@echo "  prefetch    Pre-download model/KB artifacts into volumes"
-	@echo "  lint        ruff + mypy"
+	@echo "ClinicDx — available targets:"
+	@echo ""
+	@echo "  Engine-only (any EMR):"
+	@echo "    up            Start engine (GPU)"
+	@echo "    up-cpu        Start engine (CPU)"
+	@echo ""
+	@echo "  Full stack (+ nginx for OpenMRS):"
+	@echo "    up-full       Start full stack (GPU)"
+	@echo "    up-full-cpu   Start full stack (CPU)"
+	@echo ""
+	@echo "  Lifecycle:"
+	@echo "    down          Stop all containers"
+	@echo "    restart       down + up"
+	@echo "    logs          Follow all container logs"
+	@echo "    ps            Show container status"
+	@echo ""
+	@echo "  Testing:"
+	@echo "    test          unit + integration tests"
+	@echo "    test-unit     unit tests only"
+	@echo "    test-int      integration tests (stack must be running)"
+	@echo "    smoke         end-to-end smoke test"
+	@echo "    lint          ruff + mypy"
