@@ -2,7 +2,7 @@ import { openmrsFetch, getConfig } from '@openmrs/esm-framework';
 
 function getMiddlewareUrl(): string {
   try {
-    const config = getConfig('@openmrs/esm-clinicdx-app') as { middlewareUrl?: string };
+    const config = getConfig('@clinicdx/esm-clinicdx-app') as { middlewareUrl?: string };
     if (config?.middlewareUrl) {
       return config.middlewareUrl.replace(/\/$/, '');
     }
@@ -86,13 +86,14 @@ export async function generateCdsStreaming(
   const decoder = new TextDecoder();
   let buffer = '';
 
-  while (true) {
+  for (;;) {
     const { done, value } = await reader.read();
-    if (done) break;
+    if (!done) {
+      buffer += decoder.decode(value, { stream: true });
+    }
 
-    buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split('\n');
-    buffer = lines.pop() ?? '';
+    buffer = done ? '' : (lines.pop() ?? '');
 
     for (const line of lines) {
       const trimmed = line.trim();
@@ -107,6 +108,8 @@ export async function generateCdsStreaming(
         // skip malformed events
       }
     }
+
+    if (done) break;
   }
 }
 

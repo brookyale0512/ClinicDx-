@@ -1,6 +1,6 @@
 import { getAsyncLifecycle, defineConfigSchema } from '@openmrs/esm-framework';
 
-const moduleName = '@openmrs/esm-clinicdx-app';
+const moduleName = '@clinicdx/esm-clinicdx-app';
 
 const options = {
   featureName: 'clinicdx',

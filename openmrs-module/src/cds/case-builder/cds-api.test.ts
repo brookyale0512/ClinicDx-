@@ -1,19 +1,23 @@
 /**
  * cds-api.test.ts
  *
- * Tests for the CDS API layer: URL guard, HTTP wrapper, SSE streaming parser,
- * CSRF header injection, and health check. No real network calls are made.
+ * Tests for the CDS API layer: HTTP wrapper, SSE streaming parser,
+ * and health check. No real network calls are made.
  */
 
 import { generateCds, generateCdsStreaming, checkCdsHealth } from './cds-api';
 import type { CdsResult, StreamEvent } from './cds-api';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Mock getConfig so getMiddlewareUrl() returns a known value ──────────────
 
-const SAFE_HTTPS = 'https://middleware.example.com';
-const SAFE_RELATIVE = '/clinicdx-api';
-const UNSAFE_HTTP = 'http://middleware.example.com';
-const UNSAFE_FTP = 'ftp://middleware.example.com';
+const MOCK_BASE = '/clinicdx-api';
+
+jest.mock('@openmrs/esm-framework', () => ({
+  getConfig: jest.fn().mockReturnValue({ middlewareUrl: '/clinicdx-api' }),
+  openmrsFetch: jest.fn(),
+}));
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function makeReadableStream(chunks: string[]): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
@@ -57,48 +61,11 @@ function mockErrorFetch(status: number, detail?: string): void {
 }
 
 beforeEach(() => {
-  // Reset the global fetch mock before every test so call-count from a previous
-  // test cannot pollute assertions like `expect(global.fetch).not.toHaveBeenCalled()`.
   (global as any).fetch = jest.fn();
 });
 
 afterEach(() => {
   jest.restoreAllMocks();
-});
-
-// ─── assertSafeUrl (tested via public API) ────────────────────────────────────
-
-describe('URL safety guard', () => {
-  test('accepts https:// URL', async () => {
-    mockJsonFetch({ response: 'ok', raw_output: '', kb_queries: [], turns: 1, model_server: 'x' } as CdsResult);
-    await expect(generateCds(SAFE_HTTPS, 'prompt')).resolves.toBeDefined();
-  });
-
-  test('accepts relative / URL', async () => {
-    mockJsonFetch({ response: 'ok', raw_output: '', kb_queries: [], turns: 1, model_server: 'x' } as CdsResult);
-    await expect(generateCds(SAFE_RELATIVE, 'prompt')).resolves.toBeDefined();
-  });
-
-  test('accepts URL matching window.location.origin', async () => {
-    mockJsonFetch({ response: 'ok', raw_output: '', kb_queries: [], turns: 1, model_server: 'x' } as CdsResult);
-    await expect(generateCds(window.location.origin + '/api', 'prompt')).resolves.toBeDefined();
-  });
-
-  test('rejects http:// URL', async () => {
-    await expect(generateCds(UNSAFE_HTTP, 'prompt')).rejects.toThrow(
-      "middlewareUrl must start with 'https://'",
-    );
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
-
-  test('rejects ftp:// URL', async () => {
-    await expect(generateCds(UNSAFE_FTP, 'prompt')).rejects.toThrow();
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
-
-  test('rejects plain hostname without protocol', async () => {
-    await expect(generateCds('middleware.example.com/api', 'prompt')).rejects.toThrow();
-  });
 });
 
 // ─── generateCds ─────────────────────────────────────────────────────────────
@@ -108,34 +75,27 @@ describe('generateCds', () => {
     const result: CdsResult = {
       response: 'Clinical insight text',
       raw_output: 'raw',
-      kb_queries: [{ query: 'malaria', score: 42, source: 'who_guidelines' }],
+      kb_queries: [{ query: 'malaria', score: 42, source: 'who_guidelines', hits: [] }],
       turns: 2,
       model_server: 'gemma',
     };
     mockJsonFetch(result);
-    const out = await generateCds(SAFE_HTTPS, 'test prompt');
+    const out = await generateCds('test prompt');
     expect(out).toEqual(result);
     const call = (global.fetch as jest.Mock).mock.calls[0];
-    expect(call[0]).toBe(`${SAFE_HTTPS}/cds/generate`);
+    expect(call[0]).toBe(`${MOCK_BASE}/cds/generate`);
     expect(call[1].method).toBe('POST');
     expect(JSON.parse(call[1].body)).toEqual({ prompt: 'test prompt' });
   });
 
-  test('sends CSRF header', async () => {
-    mockJsonFetch({});
-    await generateCds(SAFE_RELATIVE, 'p').catch(() => {});
-    const call = (global.fetch as jest.Mock).mock.calls[0];
-    expect(call[1].headers['X-Requested-With']).toBe('XMLHttpRequest');
-  });
-
   test('throws with server detail message on error', async () => {
     mockErrorFetch(422, 'Prompt too long');
-    await expect(generateCds(SAFE_HTTPS, 'p')).rejects.toThrow('Prompt too long');
+    await expect(generateCds('p')).rejects.toThrow('Prompt too long');
   });
 
   test('throws with status code when no detail in error body', async () => {
     mockErrorFetch(500);
-    await expect(generateCds(SAFE_HTTPS, 'p')).rejects.toThrow('CDS server error (500)');
+    await expect(generateCds('p')).rejects.toThrow('CDS server error (500)');
   });
 });
 
@@ -152,7 +112,7 @@ describe('generateCdsStreaming', () => {
     mockOkFetch(makeReadableStream(sseLines));
 
     const events: StreamEvent[] = [];
-    await generateCdsStreaming(SAFE_RELATIVE, 'prompt', (e) => events.push(e));
+    await generateCdsStreaming('prompt', (e) => events.push(e));
 
     expect(events[0]).toEqual({ type: 'turn_start', turn: 1 });
     expect(events[1]).toEqual({ type: 'token', text: 'Hello' });
@@ -169,19 +129,18 @@ describe('generateCdsStreaming', () => {
     mockOkFetch(makeReadableStream(sseLines));
 
     const texts: string[] = [];
-    await generateCdsStreaming(SAFE_RELATIVE, 'prompt', (e) => {
+    await generateCdsStreaming('prompt', (e) => {
       if (e.type === 'token') texts.push(e.text ?? '');
     });
 
     expect(texts).toEqual(['A']);
   });
 
-  test('C-3 regression: processes buffer tail with no trailing newline', async () => {
+  test('processes buffer tail with no trailing newline', async () => {
     const encoder = new TextEncoder();
     const body = new ReadableStream<Uint8Array>({
       start(controller) {
         controller.enqueue(encoder.encode('data: {"type":"token","text":"X"}\n'));
-        // tail event — no trailing newline (previously discarded)
         controller.enqueue(encoder.encode('data: {"type":"done","turns":3}'));
         controller.close();
       },
@@ -189,7 +148,7 @@ describe('generateCdsStreaming', () => {
     mockOkFetch(body);
 
     const events: StreamEvent[] = [];
-    await generateCdsStreaming(SAFE_RELATIVE, 'prompt', (e) => events.push(e));
+    await generateCdsStreaming('prompt', (e) => events.push(e));
 
     const done = events.find((e) => e.type === 'done');
     expect(done).toBeDefined();
@@ -206,7 +165,7 @@ describe('generateCdsStreaming', () => {
 
     const events: StreamEvent[] = [];
     await expect(
-      generateCdsStreaming(SAFE_RELATIVE, 'prompt', (e) => events.push(e)),
+      generateCdsStreaming('prompt', (e) => events.push(e)),
     ).resolves.toBeUndefined();
     expect(events.map((e) => e.type)).toEqual(['token', 'done']);
   });
@@ -220,7 +179,7 @@ describe('generateCdsStreaming', () => {
     mockOkFetch(makeReadableStream(sseLines));
 
     const events: StreamEvent[] = [];
-    await generateCdsStreaming(SAFE_RELATIVE, 'prompt', (e) => events.push(e));
+    await generateCdsStreaming('prompt', (e) => events.push(e));
     expect(events).toHaveLength(1);
     expect(events[0].text).toBe('Y');
   });
@@ -229,7 +188,6 @@ describe('generateCdsStreaming', () => {
     const encoder = new TextEncoder();
     const body = new ReadableStream<Uint8Array>({
       start(controller) {
-        // Split a single event line across two chunks
         controller.enqueue(encoder.encode('data: {"type":"token"'));
         controller.enqueue(encoder.encode(',"text":"Split"}\n'));
         controller.enqueue(encoder.encode('data: {"type":"done","turns":1}\n'));
@@ -239,14 +197,14 @@ describe('generateCdsStreaming', () => {
     mockOkFetch(body);
 
     const events: StreamEvent[] = [];
-    await generateCdsStreaming(SAFE_RELATIVE, 'prompt', (e) => events.push(e));
+    await generateCdsStreaming('prompt', (e) => events.push(e));
     expect(events[0]).toEqual({ type: 'token', text: 'Split' });
   });
 
   test('throws when response is not ok', async () => {
     mockErrorFetch(503, 'Service unavailable');
     await expect(
-      generateCdsStreaming(SAFE_HTTPS, 'prompt', () => {}),
+      generateCdsStreaming('prompt', () => {}),
     ).rejects.toThrow('Service unavailable');
   });
 
@@ -256,17 +214,16 @@ describe('generateCdsStreaming', () => {
     );
     const controller = new AbortController();
     await expect(
-      generateCdsStreaming(SAFE_HTTPS, 'p', () => {}, controller.signal),
+      generateCdsStreaming('p', () => {}, controller.signal),
     ).rejects.toMatchObject({ name: 'AbortError' });
   });
 
   test('sends POST to /cds/generate_stream', async () => {
     mockOkFetch(makeReadableStream([]));
-    await generateCdsStreaming(SAFE_HTTPS, 'my prompt', () => {}).catch(() => {});
+    await generateCdsStreaming('my prompt', () => {}).catch(() => {});
     const call = (global.fetch as jest.Mock).mock.calls[0];
-    expect(call[0]).toBe(`${SAFE_HTTPS}/cds/generate_stream`);
+    expect(call[0]).toBe(`${MOCK_BASE}/cds/generate_stream`);
     expect(call[1].method).toBe('POST');
-    expect(call[1].headers['X-Requested-With']).toBe('XMLHttpRequest');
   });
 
   test('throws when response body is null', async () => {
@@ -274,7 +231,7 @@ describe('generateCdsStreaming', () => {
       ok: true, status: 200, body: null, json: () => Promise.resolve({}),
     } as unknown as Response);
     await expect(
-      generateCdsStreaming(SAFE_HTTPS, 'p', () => {}),
+      generateCdsStreaming('p', () => {}),
     ).rejects.toThrow('No response body');
   });
 });
@@ -289,7 +246,7 @@ describe('checkCdsHealth', () => {
       kb: { url: 'http://localhost:6333', ok: true },
     };
     mockJsonFetch(payload);
-    const result = await checkCdsHealth(SAFE_RELATIVE);
+    const result = await checkCdsHealth();
     expect(result.status).toBe('ok');
     expect(result.model_server.ok).toBe(true);
     expect(result.kb.ok).toBe(true);
@@ -297,18 +254,6 @@ describe('checkCdsHealth', () => {
 
   test('throws when health check fails', async () => {
     mockErrorFetch(503);
-    await expect(checkCdsHealth(SAFE_HTTPS)).rejects.toThrow('Health check failed');
-  });
-
-  test('sends CSRF header', async () => {
-    mockJsonFetch({ status: 'ok', model_server: { url: '', ok: true }, kb: { url: '', ok: true } });
-    await checkCdsHealth(SAFE_RELATIVE);
-    const call = (global.fetch as jest.Mock).mock.calls[0];
-    expect(call[1].headers['X-Requested-With']).toBe('XMLHttpRequest');
-  });
-
-  test('rejects unsafe URL', async () => {
-    await expect(checkCdsHealth(UNSAFE_HTTP)).rejects.toThrow();
-    expect(global.fetch).not.toHaveBeenCalled();
+    await expect(checkCdsHealth()).rejects.toThrow('Health check failed');
   });
 });

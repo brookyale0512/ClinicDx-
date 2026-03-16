@@ -7,7 +7,7 @@
  * group members, datetime truncation) and buildModelPrompt (Gemma template).
  */
 
-import { buildCaseText, buildModelPrompt } from './case-xml';
+import { buildCaseXml as buildCaseText, buildModelPrompt } from './case-xml';
 import type { PatientFull, Encounter, Obs } from './openmrs-api';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

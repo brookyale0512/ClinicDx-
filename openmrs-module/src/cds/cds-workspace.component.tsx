@@ -39,13 +39,13 @@ interface CdsWorkspaceProps {
   promptBeforeClosing: (hasUnsavedChanges: () => boolean) => void;
 }
 
-interface ParsedSection {
+export interface ParsedSection {
   title: string;
   icon: string;
   content: string;
 }
 
-function cleanResponse(raw: string): string {
+export function cleanResponse(raw: string): string {
   let text = raw;
   // Strip complete think/thinking blocks
   text = text.replace(/<think(?:ing)?>[\s\S]*?<\/think(?:ing)?>/gi, '');
@@ -58,7 +58,7 @@ function cleanResponse(raw: string): string {
   return text.trim();
 }
 
-function parseModelResponse(raw: string): ParsedSection[] {
+export function parseModelResponse(raw: string): ParsedSection[] {
   const cleaned = cleanResponse(raw);
   const sections: ParsedSection[] = [];
   const sectionPattern = /^##\s+(.+)$/gm;

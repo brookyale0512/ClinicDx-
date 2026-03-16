@@ -50,7 +50,7 @@ const SKIP_PREFIXES = [
   'audio', 'manifest', 'note', 'output', 'result',
 ];
 
-function parseItems(raw: string): ExtractedItem[] {
+export function parseItems(raw: string): ExtractedItem[] {
   let text = raw.replace(/<think>[\s\S]*?<\/think>/g, '');
   text = text.replace(/<think>[\s\S]*/g, '');
 
@@ -76,7 +76,7 @@ function parseItems(raw: string): ExtractedItem[] {
   return items;
 }
 
-function handleExtractedData(data: any): ExtractedItem[] {
+export function handleExtractedData(data: any): ExtractedItem[] {
   if (data.items && Array.isArray(data.items)) {
     return data.items.map((it: any, i: number) => ({
       id: `item-${i}`,

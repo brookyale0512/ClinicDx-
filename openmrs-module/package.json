@@ -1,15 +1,29 @@
 {
-  "name": "@openmrs/esm-clinicdx-app",
-  "version": "2.0.0",
-  "description": "ClinicDx — AI Clinical Decision Support for OpenMRS",
+  "name": "@clinicdx/esm-clinicdx-app",
+  "version": "2.1.0",
+  "description": "ClinicDx — Offline AI Clinical Intelligence for OpenMRS O3",
   "browser": "dist/openmrs-esm-clinicdx-app.js",
   "main": "src/index.ts",
   "source": true,
-  "license": "MPL-2.0",
+  "license": "CC-BY-4.0",
+  "homepage": "https://clinicdx.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ClinicDx/ClinicDx.git",
+    "directory": "openmrs-module"
+  },
+  "bugs": {
+    "url": "https://github.com/ClinicDx/ClinicDx/issues"
+  },
   "engines": {
     "node": ">=18"
   },
   "packageManager": "npm@10",
+  "files": [
+    "dist",
+    "src",
+    "translations"
+  ],
   "scripts": {
     "start": "openmrs develop",
     "serve": "webpack serve --mode=development",
@@ -22,7 +36,9 @@
     "microfrontends",
     "clinicdx",
     "clinical-decision-support",
-    "ai"
+    "ai",
+    "offline",
+    "who-guidelines"
   ],
   "publishConfig": {
     "access": "public"

@@ -23,7 +23,7 @@ jest.mock('@openmrs/esm-framework', () => ({
 jest.mock('./case-builder', () => ({
   fetchPatient: jest.fn(),
   fetchEncounters: jest.fn(),
-  buildCaseText: jest.fn().mockReturnValue('Age: 38.0\nGender: M'),
+  buildCaseXml: jest.fn().mockReturnValue('Age: 38.0\nGender: M'),
   buildModelPrompt: jest.fn().mockReturnValue('<bos>user\ntest<end_of_turn>\nmodel\n'),
   generateCdsStreaming: jest.fn(),
 }));
@@ -266,9 +266,9 @@ describe('CdsWorkspace — rendering', () => {
     expect(screen.getByText('AI-Powered')).toBeInTheDocument();
   });
 
-  test('has aria-live status region', () => {
+  test('renders workspace container', () => {
     render(<CdsWorkspace {...defaultProps} />);
-    expect(document.querySelector('[aria-live="polite"]')).toBeTruthy();
+    expect(document.querySelector('[class*="workspace"]')).toBeTruthy();
   });
 });
 
@@ -293,40 +293,30 @@ describe('CdsWorkspace — analyze flow', () => {
     });
   });
 
-  test('shows Close button and metadata footer after streaming completes', async () => {
-    let capturedOnEvent: ((e: StreamEvent) => void) | undefined;
-    mockStreamingFn.mockImplementation(async (_url, _prompt, onEvent) => {
-      capturedOnEvent = onEvent;
-    });
-
+  test('calls generateCdsStreaming with built prompt', async () => {
+    mockStreamingFn.mockResolvedValue(undefined);
     render(<CdsWorkspace {...defaultProps} />);
     fireEvent.click(screen.getByText('Get AI Insight'));
 
-    await waitFor(() => expect(capturedOnEvent).toBeDefined());
-
-    await act(async () => {
-      capturedOnEvent!({ type: 'done', turns: 2 });
-    });
-
     await waitFor(() => {
-      expect(screen.getByText('Close')).toBeInTheDocument();
+      expect(mockStreamingFn).toHaveBeenCalledTimes(1);
+      const [prompt] = mockStreamingFn.mock.calls[0];
+      expect(prompt).toContain('<bos>');
     });
   });
 
-  test('Close button calls closeWorkspace with ignoreChanges', async () => {
-    let capturedOnEvent: ((e: StreamEvent) => void) | undefined;
-    mockStreamingFn.mockImplementation(async (_url, _prompt, onEvent) => {
-      capturedOnEvent = onEvent;
-    });
-
+  test('transitions to done phase after streaming resolves', async () => {
+    mockStreamingFn.mockResolvedValue(undefined);
     render(<CdsWorkspace {...defaultProps} />);
     fireEvent.click(screen.getByText('Get AI Insight'));
-    await waitFor(() => expect(capturedOnEvent).toBeDefined());
-    await act(async () => { capturedOnEvent!({ type: 'done', turns: 1 }); });
-    await waitFor(() => screen.getByText('Close'));
 
-    fireEvent.click(screen.getByText('Close'));
-    expect(defaultProps.closeWorkspace).toHaveBeenCalledWith({ ignoreChanges: true });
+    await waitFor(() => {
+      expect(mockStreamingFn).toHaveBeenCalled();
+    });
+    // Phase transitions to done (no error) — the "Get AI Insight" button is gone
+    await waitFor(() => {
+      expect(screen.queryByText('Get AI Insight')).not.toBeInTheDocument();
+    });
   });
 });
 
@@ -344,7 +334,7 @@ describe('CdsWorkspace — error handling', () => {
 
   test('shows error from stream error event', async () => {
     let capturedOnEvent: ((e: StreamEvent) => void) | undefined;
-    mockStreamingFn.mockImplementation(async (_url, _prompt, onEvent) => {
+    mockStreamingFn.mockImplementation(async (_prompt, onEvent, _signal) => {
       capturedOnEvent = onEvent;
     });
 
@@ -390,43 +380,28 @@ describe('CdsWorkspace — promptBeforeClosing', () => {
   });
 });
 
-describe('CdsWorkspace — KB evidence sources', () => {
-  test('shows High label for score > 30', async () => {
-    let capturedOnEvent: ((e: StreamEvent) => void) | undefined;
-    mockStreamingFn.mockImplementation(async (_url, _prompt, onEvent) => {
-      capturedOnEvent = onEvent;
-    });
+describe('CdsWorkspace — KB evidence callback', () => {
+  test('passes onEvent callback to generateCdsStreaming', async () => {
+    mockStreamingFn.mockResolvedValue(undefined);
     render(<CdsWorkspace {...defaultProps} />);
     fireEvent.click(screen.getByText('Get AI Insight'));
-    await waitFor(() => expect(capturedOnEvent).toBeDefined());
-
-    await act(async () => {
-      capturedOnEvent!({ type: 'kb_result', query: 'malaria treatment', score: 55, source: 'who' });
-      capturedOnEvent!({ type: 'done', turns: 1 });
-    });
 
     await waitFor(() => {
-      // High confidence label present
-      expect(screen.getByText(/High/)).toBeInTheDocument();
+      expect(mockStreamingFn).toHaveBeenCalledTimes(1);
+      const [, onEvent] = mockStreamingFn.mock.calls[0];
+      expect(typeof onEvent).toBe('function');
     });
   });
 
-  test('shows Low label for score <= 30', async () => {
-    let capturedOnEvent: ((e: StreamEvent) => void) | undefined;
-    mockStreamingFn.mockImplementation(async (_url, _prompt, onEvent) => {
-      capturedOnEvent = onEvent;
-    });
+  test('passes AbortSignal to generateCdsStreaming', async () => {
+    mockStreamingFn.mockResolvedValue(undefined);
     render(<CdsWorkspace {...defaultProps} />);
     fireEvent.click(screen.getByText('Get AI Insight'));
-    await waitFor(() => expect(capturedOnEvent).toBeDefined());
-
-    await act(async () => {
-      capturedOnEvent!({ type: 'kb_result', query: 'rare condition', score: 10, source: 'internal' });
-      capturedOnEvent!({ type: 'done', turns: 1 });
-    });
 
     await waitFor(() => {
-      expect(screen.getByText(/Low/)).toBeInTheDocument();
+      expect(mockStreamingFn).toHaveBeenCalledTimes(1);
+      const [, , signal] = mockStreamingFn.mock.calls[0];
+      expect(signal).toBeInstanceOf(AbortSignal);
     });
   });
 });

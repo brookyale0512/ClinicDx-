@@ -28,7 +28,7 @@ ClinicDx is an **open-source clinical AI engine** designed for resource-limited 
 | Component | What it is | How it ships |
 |---|---|---|
 | **CDS Engine** | Model inference + knowledge base + CDS/Scribe middleware | `docker compose up` — works with any EMR |
-| **OpenMRS Module** | React frontend (CDS workspace, Scribe, OCR, Imaging) | npm package — `@openmrs/esm-clinicdx-app` |
+| **OpenMRS Module** | React frontend (CDS workspace, Scribe, OCR, Imaging) | npm package — `@clinicdx/esm-clinicdx-app` |
 
 The engine is **EMR-agnostic**. OpenMRS is one supported integration, not a requirement. Any EMR can call the engine's REST API to get clinical decision support and voice scribe capabilities.
 
@@ -283,7 +283,7 @@ Install the frontend module into your existing OpenMRS O3 instance:
 // In spa-assemble-config.json:
 {
   "frontendModules": {
-    "@openmrs/esm-clinicdx-app": "latest"
+    "@clinicdx/esm-clinicdx-app": "latest"
   }
 }
 ```
@@ -291,7 +291,7 @@ Install the frontend module into your existing OpenMRS O3 instance:
 Configure the engine URL in OpenMRS admin:
 ```json
 {
-  "@openmrs/esm-clinicdx-app": {
+  "@clinicdx/esm-clinicdx-app": {
     "middlewareUrl": "http://your-engine-host:8321"
   }
 }
@@ -420,7 +420,7 @@ The frontend module reads `middlewareUrl` from the OpenMRS config system:
 
 ```json
 {
-  "@openmrs/esm-clinicdx-app": {
+  "@clinicdx/esm-clinicdx-app": {
     "middlewareUrl": "/clinicdx-api"
   }
 }
