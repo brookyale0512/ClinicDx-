@@ -197,19 +197,11 @@ ClinicDx/
 │           ├── retrieval_core_v2.py  BM25 + semantic hybrid retrieval
 │           └── embedder.py      EmbedGemma 300M wrapper
 │
-├── docker/
-│   ├── kb/                      KB Dockerfile + entrypoint (auto-downloads MV2 + EmbedGemma)
-│   ├── model/                   Model Dockerfile + entrypoint (auto-downloads GGUFs)
-│   ├── middleware/              Middleware Dockerfile
-│   └── nginx/                   Nginx Dockerfile + config (full stack only)
-│
-├── training/
-│   ├── cds-lora/                CDS LoRA fine-tuning (Stage 1)
-│   └── scribe-projector/        AudioProjector training (Stage 2)
-│
-└── dataset/
-    ├── cds/                     CDS conversation dataset pipeline
-    └── speech/                  Audio clip generation and assembly
+└── docker/
+    ├── kb/                      KB Dockerfile + entrypoint (auto-downloads MV2 + EmbedGemma)
+    ├── model/                   Model Dockerfile + entrypoint (auto-downloads GGUFs)
+    ├── middleware/              Middleware Dockerfile
+    └── nginx/                   Nginx Dockerfile + config (full stack only)
 ```
 
 ---
@@ -490,19 +482,6 @@ for line in sys.stdin:
     except: pass
 "
 ```
-
----
-
-## Training
-
-Training code lives in [`training/`](training/). All three stages can be reproduced independently:
-
-| Stage | Directory | Script | What it trains |
-|---|---|---|---|
-| 1 — CDS LoRA | `training/cds-lora/` | `train_cds_lora.py` | Single-stage LoRA on 27,592 clinical conversations with reasoning and KB tool-use |
-| 2 — AudioProjector | `training/scribe-projector/` | `train_audio_projector.py` | MedASR → LLM projector on 50,000 audio clips |
-
-Dataset preparation pipelines are in [`dataset/`](dataset/).
 
 ---
 
